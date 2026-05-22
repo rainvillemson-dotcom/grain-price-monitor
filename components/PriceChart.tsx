@@ -28,28 +28,42 @@ const PERIODS = [
   { value: '2y', label: '2A' },
 ]
 
-const SMS_COLORS: Record<string, string> = {
-  Nisu: '#3fb950',
-  'Nisu I kat': '#57d968',
-  'Nisu II kat': '#76e680',
-  'Nisu III kat': '#2ea043',
-  Raps: '#d29922',
-  Oder: '#58a6ff',
-  Kaer: '#a371f7',
-  Rukis: '#f0883e',
-  Hernes: '#39d353',
-  Uba: '#ff7b72',
+// Allikate värvid — iga allikas saab oma värvitooni
+const SOURCE_COLORS: Record<string, string> = {
+  Scandagra:    '#3fb950', // roheline
+  'Baltic Agro':'#58a6ff', // sinine
+  Kevili:       '#d29922', // kollane
+  Viljaekspert: '#f0883e', // oranž
+  Muu:          '#8b949e', // hall
 }
 
-function getSmsColor(product: string): string {
-  if (SMS_COLORS[product]) return SMS_COLORS[product]
-  // Saagiaasta sufiks: "Nisu I kat (2026)" -> "Nisu I kat"
-  const base = product.replace(/\s*\(\d{4}\)$/, '').trim()
-  return SMS_COLORS[base] ?? '#8b949e'
+// Sama allika eri toodete jaoks heledamad/tumedamad toonid
+const SOURCE_PRODUCT_SHADES: Record<string, string[]> = {
+  Scandagra:    ['#3fb950','#57d968','#2ea043','#76e680','#1a7a2e','#a3f5b0'],
+  'Baltic Agro':['#58a6ff','#79bcff','#388bfd','#a5d0ff','#1f6feb','#cce5ff'],
+  Kevili:       ['#d29922','#e3b341','#b08800','#f0cd5a','#8a6900','#f5dfa5'],
+  Viljaekspert: ['#f0883e','#f5a26a','#c96c2a','#fab38c','#a05520','#fdd4b8'],
+  Muu:          ['#8b949e','#a0aab4','#768390','#b4bbc4','#5c6870','#d1d7dc'],
 }
 
-// SMS series key prefix to avoid collision with MATIF ticker keys
+function getSmsColor(source: string, product: string, productIndex: number): string {
+  const shades = SOURCE_PRODUCT_SHADES[source] ?? SOURCE_PRODUCT_SHADES['Muu']
+  return shades[productIndex % shades.length]
+}
+
+// Allikas+toode identifikaator graafikuvõtmena
 const SMS_PREFIX = 'sms__'
+const SMS_SEP = '\x00' // null byte — ei esine toote nimedes
+
+function smsChartKey(source: string, product: string): string {
+  return `${SMS_PREFIX}${source}${SMS_SEP}${product}`
+}
+
+function parseSmsChartKey(key: string): { source: string; product: string } {
+  const inner = key.slice(SMS_PREFIX.length)
+  const idx = inner.indexOf(SMS_SEP)
+  return { source: inner.slice(0, idx), product: inner.slice(idx + 1) }
+}
 
 function formatXAxis(date: string): string {
   return new Date(date).toLocaleDateString('et-EE', { day: '2-digit', month: '2-digit' })
@@ -65,18 +79,20 @@ function formatTooltipDate(date: string): string {
 
 type ChartRow = Record<string, number | string>
 
-/**
- * Merge MATIF series + SMS prices into a single array keyed by date.
- * MATIF keys: ticker (e.g. "EBM.PA")
- * SMS keys:   "sms__<Product>" (e.g. "sms__Nisu")
- */
+interface SmsSeries {
+  key: string
+  source: string
+  product: string
+  color: string
+}
+
 function buildChartData(
   grainSeries: MarketSeries[],
   smsData: SmsPriceRecord[]
-): ChartRow[] {
+): { rows: ChartRow[]; smsSeries: SmsSeries[] } {
   const map = new Map<string, ChartRow>()
 
-  // Add MATIF data
+  // MATIF andmed
   for (const s of grainSeries) {
     for (const pt of s.data) {
       const row = map.get(pt.date) ?? { date: pt.date }
@@ -85,30 +101,52 @@ function buildChartData(
     }
   }
 
-  // Add SMS data — average by product+date if multiple entries
-  const smsByDateProduct = new Map<string, { sum: number; count: number }>()
+  // SMS andmed — grupeeri allikas+toode+kuupäev järgi, arvuta keskmine
+  const smsAgg = new Map<string, { sum: number; count: number }>()
   for (const r of smsData) {
-    const key = `${r.date}||${r.product}`
-    const existing = smsByDateProduct.get(key) ?? { sum: 0, count: 0 }
-    existing.sum += r.price
-    existing.count += 1
-    smsByDateProduct.set(key, existing)
+    const key = `${r.date}${SMS_SEP}${r.source}${SMS_SEP}${r.product}`
+    const ex = smsAgg.get(key) ?? { sum: 0, count: 0 }
+    ex.sum += r.price
+    ex.count += 1
+    smsAgg.set(key, ex)
   }
 
-  for (const [key, { sum, count }] of smsByDateProduct) {
-    const [date, product] = key.split('||')
+  for (const [aggKey, { sum, count }] of smsAgg) {
+    const [date, source, product] = aggKey.split(SMS_SEP)
+    const chartKey = smsChartKey(source, product)
     const row = map.get(date) ?? { date }
-    row[`${SMS_PREFIX}${product}`] = Math.round((sum / count) * 100) / 100
+    row[chartKey] = Math.round((sum / count) * 100) / 100
     map.set(date, row)
   }
 
-  return Array.from(map.entries())
+  const rows = Array.from(map.entries())
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([, row]) => row)
-}
 
-function smsProductsInData(smsData: SmsPriceRecord[]): string[] {
-  return [...new Set(smsData.map((r) => r.product))].sort()
+  // Unikaalsed SMS seeriad — allikas+toode kombinatsioonid
+  const seriesMap = new Map<string, { source: string; product: string }>()
+  for (const r of smsData) {
+    const k = smsChartKey(r.source, r.product)
+    if (!seriesMap.has(k)) seriesMap.set(k, { source: r.source, product: r.product })
+  }
+
+  // Grupeeri tooted allika kaupa et määrata värvitoon
+  const bySource = new Map<string, string[]>()
+  for (const { source, product } of seriesMap.values()) {
+    const prods = bySource.get(source) ?? []
+    if (!prods.includes(product)) prods.push(product)
+    bySource.set(source, prods)
+  }
+
+  const smsSeries: SmsSeries[] = []
+  for (const [key, { source, product }] of seriesMap) {
+    const prods = bySource.get(source) ?? []
+    const idx = prods.indexOf(product)
+    smsSeries.push({ key, source, product, color: getSmsColor(source, product, idx) })
+  }
+  smsSeries.sort((a, b) => a.key.localeCompare(b.key))
+
+  return { rows, smsSeries }
 }
 
 interface TooltipPayloadEntry {
@@ -118,28 +156,31 @@ interface TooltipPayloadEntry {
   dataKey: string
 }
 
-interface CustomTooltipProps {
+function CustomTooltip({
+  active,
+  payload,
+  label,
+}: {
   active?: boolean
   payload?: TooltipPayloadEntry[]
   label?: string
-}
-
-function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
+}) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-3 text-sm shadow-lg min-w-[160px]">
+    <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-3 text-sm shadow-lg min-w-[180px]">
       <p className="text-[#8b949e] mb-2 text-xs">{label ? formatTooltipDate(label) : ''}</p>
       {payload.map((entry) => {
         const isSms = String(entry.dataKey).startsWith(SMS_PREFIX)
+        const label2 = isSms
+          ? (() => {
+              const { source, product } = parseSmsChartKey(String(entry.dataKey))
+              return `${source} ${product}`
+            })()
+          : entry.name
         return (
           <div key={entry.dataKey} className="flex items-center gap-2 py-0.5">
-            <span
-              className="w-2 h-2 rounded-full flex-shrink-0"
-              style={{ background: entry.color }}
-            />
-            <span className="text-[#8b949e] text-xs">
-              {isSms ? `SMS ${entry.name}` : entry.name}:
-            </span>
+            <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: entry.color }} />
+            <span className="text-[#8b949e] text-xs truncate max-w-[120px]">{label2}:</span>
             <span className="text-[#e6edf3] font-medium ml-auto">
               {Number(entry.value).toFixed(2)} €/t
             </span>
@@ -153,11 +194,9 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 export default function PriceChart({ matifData, smsData, period, onPeriodChange }: PriceChartProps) {
   const eurusdSeries = matifData.find((s) => s.ticker === 'EURUSD=X')
   const grainSeries = matifData.filter((s) => s.ticker !== 'EURUSD=X')
-  const smsProducts = smsProductsInData(smsData)
 
-  const chartData = buildChartData(grainSeries, smsData)
+  const { rows: chartData, smsSeries } = buildChartData(grainSeries, smsData)
 
-  // Y-axis domain: include both MATIF and SMS prices
   const allPrices = [
     ...grainSeries.flatMap((s) => s.data.map((d) => d.price)),
     ...smsData.map((r) => r.price),
@@ -167,7 +206,7 @@ export default function PriceChart({ matifData, smsData, period, onPeriodChange 
 
   return (
     <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 space-y-4">
-      {/* Period selector */}
+      {/* Perioodi valik */}
       <div className="flex items-center gap-2 flex-wrap">
         {PERIODS.map((p) => (
           <button
@@ -184,7 +223,7 @@ export default function PriceChart({ matifData, smsData, period, onPeriodChange 
         ))}
       </div>
 
-      {/* Main grain chart */}
+      {/* Peamine graafik */}
       <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={chartData} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
@@ -208,13 +247,19 @@ export default function PriceChart({ matifData, smsData, period, onPeriodChange 
             <Tooltip content={<CustomTooltip />} />
             <Legend
               formatter={(value: string) => {
-                const isSms = value.startsWith(SMS_PREFIX)
-                const label = isSms ? `SMS ${value.replace(SMS_PREFIX, '')}` : value
-                return <span style={{ color: '#8b949e', fontSize: 12 }}>{label}</span>
+                if (value.startsWith(SMS_PREFIX)) {
+                  const { source, product } = parseSmsChartKey(value)
+                  return (
+                    <span style={{ color: SOURCE_COLORS[source] ?? '#8b949e', fontSize: 12 }}>
+                      {source} {product}
+                    </span>
+                  )
+                }
+                return <span style={{ color: '#8b949e', fontSize: 12 }}>{value}</span>
               }}
             />
 
-            {/* MATIF reference lines — solid */}
+            {/* MATIF jooned — pidev */}
             {grainSeries.map((s) => (
               <Line
                 key={s.ticker}
@@ -228,43 +273,40 @@ export default function PriceChart({ matifData, smsData, period, onPeriodChange 
               />
             ))}
 
-            {/* SMS price lines — dashed, solid dots at each data point */}
-            {smsProducts.map((product) => {
-              const color = getSmsColor(product)
-              return (
-                <Line
-                  key={`${SMS_PREFIX}${product}`}
-                  type="monotone"
-                  dataKey={`${SMS_PREFIX}${product}`}
-                  name={`${SMS_PREFIX}${product}`}
-                  stroke={color}
-                  strokeWidth={2}
-                  strokeDasharray="6 3"
-                  isAnimationActive={false}
-                  dot={(props: { cx: number; cy: number; index: number }) => {
-                    if (props.cy === null || props.cy === undefined || isNaN(props.cy)) return <g key={props.index} />
-                    return (
-                      <circle
-                        key={props.index}
-                        cx={props.cx}
-                        cy={props.cy}
-                        r={5}
-                        fill={color}
-                        stroke="#0d1117"
-                        strokeWidth={1.5}
-                      />
-                    )
-                  }}
-                  activeDot={{ r: 6, fill: color }}
-                  connectNulls
-                />
-              )
-            })}
+            {/* SMS jooned — katkendlik, täpp igal punktil */}
+            {smsSeries.map(({ key, color }) => (
+              <Line
+                key={key}
+                type="monotone"
+                dataKey={key}
+                name={key}
+                stroke={color}
+                strokeWidth={2}
+                strokeDasharray="6 3"
+                isAnimationActive={false}
+                dot={(props: { cx: number; cy: number; index: number }) => {
+                  if (!props.cy || isNaN(props.cy)) return <g key={props.index} />
+                  return (
+                    <circle
+                      key={props.index}
+                      cx={props.cx}
+                      cy={props.cy}
+                      r={5}
+                      fill={color}
+                      stroke="#0d1117"
+                      strokeWidth={1.5}
+                    />
+                  )
+                }}
+                activeDot={{ r: 6, fill: color }}
+                connectNulls
+              />
+            ))}
           </ComposedChart>
         </ResponsiveContainer>
       </div>
 
-      {/* EUR/USD mini chart */}
+      {/* EUR/USD minigraafik */}
       {eurusdSeries && eurusdSeries.data.length > 0 && (
         <div>
           <p className="text-[#8b949e] text-xs mb-1">EUR/USD</p>
@@ -291,11 +333,11 @@ export default function PriceChart({ matifData, smsData, period, onPeriodChange 
                   tickFormatter={(v: number) => v.toFixed(3)}
                 />
                 <Tooltip
-                  content={({ active, payload, label }) => {
+                  content={({ active, payload, label: lbl }) => {
                     if (!active || !payload?.length) return null
                     return (
                       <div className="bg-[#161b22] border border-[#30363d] rounded p-2 text-xs">
-                        <p className="text-[#8b949e]">{label ? formatTooltipDate(label) : ''}</p>
+                        <p className="text-[#8b949e]">{lbl ? formatTooltipDate(lbl) : ''}</p>
                         <p className="text-[#58a6ff] font-medium">
                           {Number(payload[0]?.value).toFixed(4)}
                         </p>
