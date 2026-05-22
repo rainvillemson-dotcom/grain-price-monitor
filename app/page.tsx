@@ -1,9 +1,14 @@
 import { Suspense } from 'react'
 import dynamic from 'next/dynamic'
-import { MarketSkeleton, SmsSkeleton } from '@/components/Skeletons'
+import { MarketSkeleton, SmsSkeleton, ExchangeSkeleton } from '@/components/Skeletons'
 
 const MarketDashboard = dynamic(() => import('@/components/MarketDashboard'), {
   loading: () => <MarketSkeleton />,
+  ssr: false,
+})
+
+const ExchangeSection = dynamic(() => import('@/components/ExchangeSection'), {
+  loading: () => <ExchangeSkeleton />,
   ssr: false,
 })
 
@@ -27,6 +32,10 @@ export default function HomePage() {
 
       <Suspense fallback={<MarketSkeleton />}>
         <MarketDashboard />
+      </Suspense>
+
+      <Suspense fallback={<ExchangeSkeleton />}>
+        <ExchangeSection />
       </Suspense>
 
       <Suspense fallback={<SmsSkeleton />}>
