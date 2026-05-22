@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import dynamic from 'next/dynamic'
 import { MarketSkeleton, SmsSkeleton, ExchangeSkeleton } from '@/components/Skeletons'
+import TabShell from '@/components/TabShell'
 
 const MarketDashboard = dynamic(() => import('@/components/MarketDashboard'), {
   loading: () => <MarketSkeleton />,
@@ -30,32 +31,23 @@ export default function HomePage() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6">
-        {/* MATIF + SMS graafik */}
-        <section className="py-8">
+      <TabShell
+        hinnadContent={
           <Suspense fallback={<MarketSkeleton />}>
             <MarketDashboard />
           </Suspense>
-        </section>
-
-        <div className="border-t border-[#21262d]" />
-
-        {/* Börsihinnad */}
-        <section className="py-8">
+        }
+        borsContent={
           <Suspense fallback={<ExchangeSkeleton />}>
             <ExchangeSection />
           </Suspense>
-        </section>
-
-        <div className="border-t border-[#21262d]" />
-
-        {/* SMS sisestus */}
-        <section className="py-8">
+        }
+        lisaContent={
           <Suspense fallback={<SmsSkeleton />}>
             <SmsPriceSection />
           </Suspense>
-        </section>
-      </main>
+        }
+      />
     </div>
   )
 }

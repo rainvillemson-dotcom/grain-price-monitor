@@ -6,11 +6,11 @@ interface ExchangeCardProps {
   instrument: ExchangeData
 }
 
-const EXCHANGE_BADGE: Record<string, string> = {
-  MATIF: 'text-[#3fb950] bg-[#3fb950]/10',
-  CBOT:  'text-[#58a6ff] bg-[#58a6ff]/10',
-  WTI:   'text-[#e85151] bg-[#e85151]/10',
-  FX:    'text-[#39d353] bg-[#39d353]/10',
+const EXCHANGE_BADGE: Record<string, { color: string; bg: string }> = {
+  MATIF: { color: '#3fb950', bg: 'rgba(63,185,80,0.12)' },
+  CBOT:  { color: '#58a6ff', bg: 'rgba(88,166,255,0.12)' },
+  WTI:   { color: '#f85149', bg: 'rgba(248,81,73,0.12)' },
+  FX:    { color: '#3fb950', bg: 'rgba(63,185,80,0.12)' },
 }
 
 function Pulse({ className }: { className?: string }) {
@@ -24,31 +24,36 @@ export default function ExchangeCard({ instrument }: ExchangeCardProps) {
   const isSkeleton = price === 0
   const isPositive = change >= 0
   const isZero = change === 0
-  const changeColor = isZero ? 'text-[#8b949e]' : isPositive ? 'text-[#3fb950]' : 'text-[#f85149]'
+  const changeColor = isZero ? '#8b949e' : isPositive ? '#3fb950' : '#f85149'
   const arrow = isPositive ? '▲' : '▼'
 
-  // Decimal precision by unit
-  const decimals = unit === 'EUR' ? 4 : unit.includes('bbl') ? 2 : 2
-
-  const badgeClass = EXCHANGE_BADGE[exchange] ?? 'text-[#8b949e] bg-[#8b949e]/10'
+  const decimals = unit === 'EUR' ? 4 : 2
+  const badge = EXCHANGE_BADGE[exchange] ?? { color: '#8b949e', bg: 'rgba(139,148,158,0.12)' }
 
   return (
     <div
-      className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 hover:border-[#484f58] transition-colors cursor-default"
-      style={{ borderLeftColor: color, borderLeftWidth: 2 }}
+      className="rounded-xl p-4 cursor-default transition-colors shrink-0"
+      style={{
+        backgroundColor: '#161b22',
+        borderLeft: `2px solid ${color}`,
+      }}
     >
       {/* Top row: label + exchange badge */}
       <div className="flex items-start justify-between gap-2 mb-1">
-        <span className="text-[#e6edf3] text-xs font-medium leading-tight">{label}</span>
-        <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full shrink-0 ${badgeClass}`}>
+        <span className="text-xs font-medium leading-tight" style={{ color: '#e6edf3' }}>
+          {label}
+        </span>
+        <span
+          className="text-[10px] font-medium px-1.5 py-0.5 rounded-full shrink-0"
+          style={{ color: badge.color, backgroundColor: badge.bg }}
+        >
           {exchange}
         </span>
       </div>
 
-      {/* Ticker + unit */}
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-[#484f58] text-[10px] font-mono">{ticker}</span>
-        <span className="text-[#484f58] text-[10px]">· {unit}</span>
+      {/* Ticker below badge */}
+      <div className="text-[10px] font-mono mb-3" style={{ color: '#484f58' }}>
+        {ticker} · {unit}
       </div>
 
       {isSkeleton ? (
@@ -60,31 +65,31 @@ export default function ExchangeCard({ instrument }: ExchangeCardProps) {
       ) : (
         <>
           {/* Price — main character */}
-          <div className="price-value text-[#e6edf3] text-3xl font-bold leading-none mb-2">
+          <div className="num text-4xl font-bold leading-none mb-2" style={{ color: '#e6edf3' }}>
             {price.toFixed(decimals)}
           </div>
 
           {/* Change */}
           {!isZero && (
-            <div className={`text-sm font-medium ${changeColor} leading-none`}>
+            <div className="text-sm font-medium leading-none" style={{ color: changeColor }}>
               {arrow} {Math.abs(change).toFixed(decimals)}{' '}
-              <span className="text-xs opacity-80">
+              <span className="text-xs" style={{ opacity: 0.8 }}>
                 ({isPositive ? '+' : ''}{changePct.toFixed(2)}%)
               </span>
             </div>
           )}
 
-          {/* H/L — supporting cast */}
+          {/* H/L */}
           {(high !== null || low !== null) && (
             <div className="flex gap-3 mt-3">
               {high !== null && (
-                <span className="text-[#484f58] text-[10px]">
-                  H <span className="text-[#8b949e]">{high.toFixed(2)}</span>
+                <span className="text-[10px]" style={{ color: '#484f58' }}>
+                  H <span style={{ color: '#8b949e' }}>{high.toFixed(2)}</span>
                 </span>
               )}
               {low !== null && (
-                <span className="text-[#484f58] text-[10px]">
-                  L <span className="text-[#8b949e]">{low.toFixed(2)}</span>
+                <span className="text-[10px]" style={{ color: '#484f58' }}>
+                  L <span style={{ color: '#8b949e' }}>{low.toFixed(2)}</span>
                 </span>
               )}
             </div>

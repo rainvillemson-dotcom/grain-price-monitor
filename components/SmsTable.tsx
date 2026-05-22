@@ -18,23 +18,24 @@ interface SmsTableProps {
 export default function SmsTable({ records, onDelete }: SmsTableProps) {
   if (records.length === 0) {
     return (
-      <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-8 text-center text-[#8b949e] text-sm">
+      <div className="bg-[#161b22] rounded-xl p-8 text-center text-[#8b949e] text-sm">
         Ühtegi hinda pole veel lisatud
       </div>
     )
   }
 
   return (
-    <div className="bg-[#161b22] border border-[#30363d] rounded-lg overflow-hidden">
+    <div className="bg-[#161b22] rounded-xl overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[#30363d]">
-              <th className="text-left px-4 py-3 text-[#8b949e] font-medium">Kuupäev</th>
-              <th className="text-left px-4 py-3 text-[#8b949e] font-medium">Allikas</th>
-              <th className="text-left px-4 py-3 text-[#8b949e] font-medium">Toode</th>
-              <th className="text-left px-4 py-3 text-[#8b949e] font-medium">Hind</th>
-              <th className="px-4 py-3 w-10" />
+              {/* Kuupäev hidden on mobile */}
+              <th className="hidden sm:table-cell text-left px-3 py-2 text-[#8b949e] font-medium">Kuupäev</th>
+              <th className="text-left px-3 py-2 text-[#8b949e] font-medium">Allikas</th>
+              <th className="text-left px-3 py-2 text-[#8b949e] font-medium">Toode</th>
+              <th className="text-left px-3 py-2 text-[#8b949e] font-medium">Hind</th>
+              <th className="px-3 py-2 w-8" />
             </tr>
           </thead>
           <tbody>
@@ -47,8 +48,9 @@ export default function SmsTable({ records, onDelete }: SmsTableProps) {
               })
               return (
                 <tr key={r.id} className="border-b border-[#21262d] hover:bg-[#0d1117] transition-colors">
-                  <td className="px-4 py-2 text-[#8b949e]">{formattedDate}</td>
-                  <td className="px-4 py-2">
+                  {/* Kuupäev hidden on mobile */}
+                  <td className="hidden sm:table-cell px-3 py-2 text-[#8b949e]">{formattedDate}</td>
+                  <td className="px-3 py-2">
                     <span
                       className="px-2 py-0.5 rounded text-xs font-medium"
                       style={{ background: badge.bg, color: badge.text }}
@@ -56,17 +58,20 @@ export default function SmsTable({ records, onDelete }: SmsTableProps) {
                       {r.source}
                     </span>
                   </td>
-                  <td className="px-4 py-2 text-[#e6edf3]">{r.product}</td>
-                  <td className="px-4 py-2 text-[#e6edf3] font-medium">
+                  <td className="px-3 py-2 text-[#e6edf3]">{r.product}</td>
+                  <td className="px-3 py-2 text-[#e6edf3] font-medium num">
                     {r.price} {r.unit}
                   </td>
-                  <td className="px-4 py-2 text-right">
+                  <td className="px-3 py-2 text-right">
                     <button
                       onClick={() => onDelete(r.id)}
-                      className="text-[#8b949e] hover:text-[#f85149] transition-colors text-lg leading-none"
+                      className="touch-target flex items-center justify-center text-[#8b949e] hover:text-[#f85149] transition-colors cursor-pointer"
                       aria-label="Kustuta"
                     >
-                      ×
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
                     </button>
                   </td>
                 </tr>

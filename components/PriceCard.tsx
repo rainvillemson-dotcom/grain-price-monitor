@@ -9,50 +9,58 @@ interface PriceCardProps {
   unit?: string
 }
 
-export default function PriceCard({ ticker, label, latest, unit = 'EUR/t' }: PriceCardProps) {
+export default function PriceCard({ label, latest, unit = 'EUR/t' }: PriceCardProps) {
   const isPositive = latest.change >= 0
   const isZero = latest.change === 0
-  const changeColor = isZero ? 'text-[#8b949e]' : isPositive ? 'text-[#3fb950]' : 'text-[#f85149]'
+  const changeColor = isZero ? '#8b949e' : isPositive ? '#3fb950' : '#f85149'
   const arrow = isPositive ? '▲' : '▼'
 
   return (
-    <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 hover:border-[#484f58] transition-colors cursor-default">
-      {/* Label row */}
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-[#8b949e] text-xs font-medium uppercase tracking-wider leading-none">
-          {label}
-        </span>
-        <span className="text-[#484f58] text-[10px] font-mono">{ticker}</span>
+    <div
+      className="rounded-xl p-4 cursor-default transition-colors"
+      style={{ backgroundColor: '#161b22' }}
+      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1c2128')}
+      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#161b22')}
+    >
+      {/* Label */}
+      <div
+        className="text-[10px] uppercase tracking-widest mb-3 leading-none"
+        style={{ color: '#484f58' }}
+      >
+        {label}
       </div>
 
-      {/* Unit */}
-      <div className="text-[#484f58] text-[10px] mb-3">{unit}</div>
-
-      {/* Price — main character */}
       {latest.price > 0 ? (
         <>
-          <div className="price-value text-[#e6edf3] text-3xl font-bold leading-none mb-2">
-            {latest.price.toFixed(2)}
+          {/* Price — main character */}
+          <div className="flex items-baseline gap-1.5 mb-2">
+            <span
+              className="num text-4xl font-bold leading-none"
+              style={{ color: '#e6edf3' }}
+            >
+              {latest.price.toFixed(2)}
+            </span>
+            {unit && (
+              <span className="text-[10px] leading-none" style={{ color: '#484f58' }}>
+                {unit}
+              </span>
+            )}
           </div>
+
+          {/* Change */}
           {!isZero && (
-            <div className={`text-sm font-medium ${changeColor} leading-none`}>
+            <div className="text-sm font-medium leading-none" style={{ color: changeColor }}>
               {arrow} {Math.abs(latest.change).toFixed(2)}{' '}
-              <span className="text-xs opacity-80">
+              <span className="text-xs" style={{ opacity: 0.8 }}>
                 ({isPositive ? '+' : ''}{latest.changePct.toFixed(2)}%)
               </span>
             </div>
           )}
-          {latest.date && (
-            <div className="text-[#484f58] text-[10px] mt-3">
-              {new Date(latest.date).toLocaleDateString('et-EE', {
-                day: '2-digit',
-                month: '2-digit',
-              })}
-            </div>
-          )}
         </>
       ) : (
-        <div className="text-[#484f58] text-3xl font-bold leading-none">—</div>
+        <div className="text-4xl font-bold leading-none" style={{ color: '#484f58' }}>
+          —
+        </div>
       )}
     </div>
   )

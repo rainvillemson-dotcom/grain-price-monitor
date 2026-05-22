@@ -60,7 +60,7 @@ export default function SmsInput({ onSaved }: SmsInputProps) {
       if (!res.ok) {
         setParseError(data.error ?? 'Salvestamine ebaõnnestus')
       } else {
-        showToast(`${data.count ?? preview.items.length} hinda salvestatud ✓`)
+        showToast(`${data.count ?? preview.items.length} hinda salvestatud`)
         setText('')
         setPreview(null)
         onSaved()
@@ -87,21 +87,17 @@ export default function SmsInput({ onSaved }: SmsInputProps) {
         </div>
       )}
 
-      <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 space-y-3">
-        <h3 className="font-semibold text-[#e6edf3] flex items-center gap-2">
-          <span>📱</span> Lisa hinnad SMS-ist
-        </h3>
-
+      <div className="bg-[#161b22] rounded-xl p-4 space-y-3">
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder={'Kopeeri siia SMS tekst...\n\nNäide: Scandagra 22.05.2026\nNisu: 210 €/t\nOder: 185 €/t\nRaps: 505 €/t'}
-          rows={5}
-          className="w-full bg-[#0d1117] border border-[#30363d] rounded text-[#e6edf3] text-sm p-3 resize-none focus:outline-none focus:border-[#58a6ff] placeholder-[#8b949e] font-mono"
+          className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg text-[#e6edf3] text-sm p-3 resize-none focus:outline-none focus:border-[#58a6ff] placeholder-[#484f58] font-mono"
+          style={{ minHeight: '160px' }}
         />
 
         {parseError && (
-          <div className="bg-[#2d0f0f] border border-[#f85149] rounded p-3 text-sm text-[#f85149]">
+          <div className="bg-[#2d0f0f] border border-[#f85149] rounded-lg p-3 text-sm text-[#f85149]">
             {parseError}
           </div>
         )}
@@ -109,7 +105,8 @@ export default function SmsInput({ onSaved }: SmsInputProps) {
         <button
           onClick={handleParse}
           disabled={!text.trim() || isParsing}
-          className="w-full bg-[#1f6feb] hover:bg-[#388bfd] disabled:opacity-40 text-white font-medium py-2 rounded transition-colors text-sm"
+          className="w-full bg-[#1f6feb] hover:bg-[#388bfd] disabled:opacity-40 text-white font-medium rounded-lg transition-colors text-base cursor-pointer"
+          style={{ height: 48 }}
         >
           {isParsing ? 'Parsin...' : 'Parsi SMS'}
         </button>

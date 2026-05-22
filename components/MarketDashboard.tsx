@@ -73,7 +73,7 @@ export default function MarketDashboard() {
   return (
     <div className="space-y-4">
       {/* Price cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         {grainSeries.map((s) => (
           <PriceCard key={s.ticker} ticker={s.ticker} label={s.label} latest={s.latest} />
         ))}
@@ -93,11 +93,6 @@ export default function MarketDashboard() {
         period={period}
         onPeriodChange={setPeriod}
       />
-
-      <p className="text-xs text-[#8b949e] text-right">
-        Graafik: CBOT futuurid (ZW=F nisu · ZS=F raps) konverteeritud EUR/t, ankurdatud MATIF hetkehinnal
-        {data.source === 'cache' && ' · andmed vahemälust'}
-      </p>
     </div>
   )
 }

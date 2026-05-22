@@ -125,12 +125,17 @@ export default function ExchangeSection() {
 
       {data && (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {data.instruments
-              .filter((inst) => selected.has(inst.ticker))
-              .map((inst) => (
-                <ExchangeCard key={inst.ticker} instrument={inst} />
-              ))}
+          {/* Mobile: horizontally scrollable row; Desktop: grid */}
+          <div className="-mx-4 px-4 md:mx-0 md:px-0">
+            <div className="flex overflow-x-auto gap-3 pb-2 snap-x md:grid md:grid-cols-4 md:overflow-visible md:flex-none md:snap-none">
+              {data.instruments
+                .filter((inst) => selected.has(inst.ticker))
+                .map((inst) => (
+                  <div key={inst.ticker} className="min-w-[148px] snap-start md:min-w-0">
+                    <ExchangeCard instrument={inst} />
+                  </div>
+                ))}
+            </div>
           </div>
 
           <ExchangeCharts

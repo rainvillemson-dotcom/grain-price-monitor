@@ -39,24 +39,26 @@ export default function SmsPriceSection() {
   const products = ['', 'Nisu', 'Raps', 'Oder', 'Kaer', 'Rukis', 'Hernes', 'Uba']
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-sm font-semibold text-[#8b949e] uppercase tracking-wider">SMS Hinnad</h2>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="space-y-5">
+      {/* Mobile: stacked; Desktop: 2-column grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Input */}
         <SmsInput onSaved={fetchRecords} />
 
+        {/* Filter + Table */}
         <div className="space-y-3">
-          {/* Product filter */}
+          {/* Product filter pills */}
           <div className="flex gap-2 flex-wrap">
             {products.map((p) => (
               <button
                 key={p}
                 onClick={() => setFilterProduct(p)}
-                className={`px-3 py-1 text-xs rounded transition-colors ${
+                className="touch-target px-3 py-1 text-xs rounded-lg transition-colors cursor-pointer flex items-center"
+                style={
                   filterProduct === p
-                    ? 'bg-[#0d1117] border border-[#3fb950] text-[#3fb950]'
-                    : 'border border-[#30363d] text-[#8b949e] hover:text-[#e6edf3]'
-                }`}
+                    ? { backgroundColor: '#0d1117', border: '1px solid #3fb950', color: '#3fb950' }
+                    : { backgroundColor: 'transparent', border: '1px solid #30363d', color: '#8b949e' }
+                }
               >
                 {p || 'Kõik'}
               </button>
@@ -64,7 +66,7 @@ export default function SmsPriceSection() {
           </div>
 
           {loading ? (
-            <div className="animate-pulse bg-[#21262d] rounded-lg h-48" />
+            <div className="animate-pulse bg-[#21262d] rounded-xl h-48" />
           ) : (
             <SmsTable records={records} onDelete={handleDelete} />
           )}
