@@ -45,6 +45,12 @@ export default function MarketDashboard() {
     void fetchSms()
   }, [fetchMarket, fetchSms, period])
 
+  useEffect(() => {
+    const handler = () => void fetchSms()
+    window.addEventListener('sms-saved', handler)
+    return () => window.removeEventListener('sms-saved', handler)
+  }, [fetchSms])
+
   if (loading) return <MarketSkeleton />
 
   if (error) {

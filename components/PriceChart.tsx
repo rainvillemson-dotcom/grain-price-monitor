@@ -218,21 +218,38 @@ export default function PriceChart({ matifData, smsData, period, onPeriodChange 
               />
             ))}
 
-            {/* SMS price lines — dashed, dots at data points */}
-            {smsProducts.map((product) => (
-              <Line
-                key={`${SMS_PREFIX}${product}`}
-                type="monotone"
-                dataKey={`${SMS_PREFIX}${product}`}
-                name={`${SMS_PREFIX}${product}`}
-                stroke={SMS_COLORS[product] ?? '#8b949e'}
-                strokeWidth={1.5}
-                strokeDasharray="5 3"
-                dot={{ r: 4, strokeWidth: 1.5, fill: '#0d1117' }}
-                activeDot={{ r: 5 }}
-                connectNulls
-              />
-            ))}
+            {/* SMS price lines — dashed, solid dots at each data point */}
+            {smsProducts.map((product) => {
+              const color = SMS_COLORS[product] ?? '#8b949e'
+              return (
+                <Line
+                  key={`${SMS_PREFIX}${product}`}
+                  type="monotone"
+                  dataKey={`${SMS_PREFIX}${product}`}
+                  name={`${SMS_PREFIX}${product}`}
+                  stroke={color}
+                  strokeWidth={2}
+                  strokeDasharray="6 3"
+                  isAnimationActive={false}
+                  dot={(props: { cx: number; cy: number; index: number }) => {
+                    if (props.cy === null || props.cy === undefined || isNaN(props.cy)) return <g key={props.index} />
+                    return (
+                      <circle
+                        key={props.index}
+                        cx={props.cx}
+                        cy={props.cy}
+                        r={5}
+                        fill={color}
+                        stroke="#0d1117"
+                        strokeWidth={1.5}
+                      />
+                    )
+                  }}
+                  activeDot={{ r: 6, fill: color }}
+                  connectNulls
+                />
+              )
+            })}
           </ComposedChart>
         </ResponsiveContainer>
       </div>

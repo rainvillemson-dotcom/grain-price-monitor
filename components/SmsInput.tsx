@@ -64,6 +64,7 @@ export default function SmsInput({ onSaved }: SmsInputProps) {
         setText('')
         setPreview(null)
         onSaved()
+        window.dispatchEvent(new CustomEvent('sms-saved'))
       }
     } catch {
       setParseError('Võrgu viga. Kontrolli ühendust.')
