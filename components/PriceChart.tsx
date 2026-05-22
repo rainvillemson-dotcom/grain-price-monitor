@@ -30,12 +30,22 @@ const PERIODS = [
 
 const SMS_COLORS: Record<string, string> = {
   Nisu: '#3fb950',
+  'Nisu I kat': '#57d968',
+  'Nisu II kat': '#76e680',
+  'Nisu III kat': '#2ea043',
   Raps: '#d29922',
   Oder: '#58a6ff',
   Kaer: '#a371f7',
   Rukis: '#f0883e',
   Hernes: '#39d353',
   Uba: '#ff7b72',
+}
+
+function getSmsColor(product: string): string {
+  if (SMS_COLORS[product]) return SMS_COLORS[product]
+  // Saagiaasta sufiks: "Nisu I kat (2026)" -> "Nisu I kat"
+  const base = product.replace(/\s*\(\d{4}\)$/, '').trim()
+  return SMS_COLORS[base] ?? '#8b949e'
 }
 
 // SMS series key prefix to avoid collision with MATIF ticker keys
@@ -220,7 +230,7 @@ export default function PriceChart({ matifData, smsData, period, onPeriodChange 
 
             {/* SMS price lines — dashed, solid dots at each data point */}
             {smsProducts.map((product) => {
-              const color = SMS_COLORS[product] ?? '#8b949e'
+              const color = getSmsColor(product)
               return (
                 <Line
                   key={`${SMS_PREFIX}${product}`}
