@@ -19,28 +19,43 @@ const SmsPriceSection = dynamic(() => import('@/components/SmsPriceSection'), {
 
 export default function HomePage() {
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-8">
-      <header className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-[#e6edf3]">Viljahindade Monitor</h1>
-          <p className="text-[#8b949e] text-sm mt-1">MATIF turuandmed · SMS hinnad</p>
+    <div className="min-h-screen bg-[#0d1117]">
+      {/* Sticky header */}
+      <header className="sticky top-0 z-20 bg-[#0d1117]/90 backdrop-blur-sm border-b border-[#21262d]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-12 flex items-center justify-between">
+          <span className="text-sm font-semibold text-[#e6edf3] tracking-tight">
+            Viljahindade Monitor
+          </span>
+          <span className="text-xs text-[#484f58] font-mono">v0.1</span>
         </div>
-        <span className="text-xs text-[#8b949e] bg-[#161b22] border border-[#30363d] px-2 py-1 rounded">
-          v0.1.0
-        </span>
       </header>
 
-      <Suspense fallback={<MarketSkeleton />}>
-        <MarketDashboard />
-      </Suspense>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6">
+        {/* MATIF + SMS graafik */}
+        <section className="py-8">
+          <Suspense fallback={<MarketSkeleton />}>
+            <MarketDashboard />
+          </Suspense>
+        </section>
 
-      <Suspense fallback={<ExchangeSkeleton />}>
-        <ExchangeSection />
-      </Suspense>
+        <div className="border-t border-[#21262d]" />
 
-      <Suspense fallback={<SmsSkeleton />}>
-        <SmsPriceSection />
-      </Suspense>
-    </main>
+        {/* Börsihinnad */}
+        <section className="py-8">
+          <Suspense fallback={<ExchangeSkeleton />}>
+            <ExchangeSection />
+          </Suspense>
+        </section>
+
+        <div className="border-t border-[#21262d]" />
+
+        {/* SMS sisestus */}
+        <section className="py-8">
+          <Suspense fallback={<SmsSkeleton />}>
+            <SmsPriceSection />
+          </Suspense>
+        </section>
+      </main>
+    </div>
   )
 }

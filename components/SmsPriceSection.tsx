@@ -40,7 +40,7 @@ export default function SmsPriceSection() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-semibold text-[#e6edf3]">SMS Hinnad</h2>
+      <h2 className="text-sm font-semibold text-[#8b949e] uppercase tracking-wider">SMS Hinnad</h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <SmsInput onSaved={fetchRecords} />

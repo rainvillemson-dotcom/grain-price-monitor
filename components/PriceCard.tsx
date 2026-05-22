@@ -11,45 +11,49 @@ interface PriceCardProps {
 
 export default function PriceCard({ ticker, label, latest, unit = 'EUR/t' }: PriceCardProps) {
   const isPositive = latest.change >= 0
-  const changeColor = isPositive ? 'text-[#3fb950]' : 'text-[#f85149]'
+  const isZero = latest.change === 0
+  const changeColor = isZero ? 'text-[#8b949e]' : isPositive ? 'text-[#3fb950]' : 'text-[#f85149]'
   const arrow = isPositive ? '▲' : '▼'
 
-  const formattedDate = latest.date
-    ? new Date(latest.date).toLocaleDateString('et-EE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      })
-    : '—'
-
   return (
-    <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 hover:border-[#8b949e] transition-colors">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-[#8b949e] text-sm font-medium">{label}</span>
-        <span className="text-[#8b949e] text-xs font-mono">{ticker}</span>
+    <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 hover:border-[#484f58] transition-colors cursor-default">
+      {/* Label row */}
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-[#8b949e] text-xs font-medium uppercase tracking-wider leading-none">
+          {label}
+        </span>
+        <span className="text-[#484f58] text-[10px] font-mono">{ticker}</span>
       </div>
 
-      <div className="space-y-1">
-        <div className="text-[#e6edf3] text-2xl font-bold">
-          {latest.price > 0 ? (
-            <>
-              {latest.price.toFixed(2)}{' '}
-              <span className="text-sm font-normal text-[#8b949e]">{unit}</span>
-            </>
-          ) : (
-            <span className="text-[#8b949e]">—</span>
-          )}
-        </div>
+      {/* Unit */}
+      <div className="text-[#484f58] text-[10px] mb-3">{unit}</div>
 
-        {latest.price > 0 && (
-          <div className={`text-sm font-medium ${changeColor}`}>
-            {arrow} {Math.abs(latest.change).toFixed(2)} ({isPositive ? '+' : ''}
-            {latest.changePct.toFixed(2)}%)
+      {/* Price — main character */}
+      {latest.price > 0 ? (
+        <>
+          <div className="price-value text-[#e6edf3] text-3xl font-bold leading-none mb-2">
+            {latest.price.toFixed(2)}
           </div>
-        )}
-
-        <div className="text-[#8b949e] text-xs mt-2">{formattedDate}</div>
-      </div>
+          {!isZero && (
+            <div className={`text-sm font-medium ${changeColor} leading-none`}>
+              {arrow} {Math.abs(latest.change).toFixed(2)}{' '}
+              <span className="text-xs opacity-80">
+                ({isPositive ? '+' : ''}{latest.changePct.toFixed(2)}%)
+              </span>
+            </div>
+          )}
+          {latest.date && (
+            <div className="text-[#484f58] text-[10px] mt-3">
+              {new Date(latest.date).toLocaleDateString('et-EE', {
+                day: '2-digit',
+                month: '2-digit',
+              })}
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="text-[#484f58] text-3xl font-bold leading-none">—</div>
+      )}
     </div>
   )
 }

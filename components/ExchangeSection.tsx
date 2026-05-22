@@ -102,9 +102,11 @@ export default function ExchangeSection() {
 
   return (
     <div className="space-y-4">
-      {/* Päis: pealkiri + börsiaeg + uuendusinfo */}
-      <div className="space-y-2">
-        <h2 className="text-lg font-semibold text-[#e6edf3]">Börsihinnad</h2>
+      {/* Päis */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <h2 className="text-sm font-semibold text-[#8b949e] uppercase tracking-wider">
+          Börsihinnad
+        </h2>
         <MarketStatus
           isRefreshing={isRefreshing}
           lastUpdated={lastUpdated}
