@@ -1,0 +1,127 @@
+'use client'
+
+import { useState } from 'react'
+import type { ParseResult } from '@/lib/types'
+import ParsePreview from './ParsePreview'
+
+interface SmsInputProps {
+  onSaved: () => void
+}
+
+export default function SmsInput({ onSaved }: SmsInputProps) {
+  const [text, setText] = useState('')
+  const [preview, setPreview] = useState<ParseResult | null>(null)
+  const [isParsing, setIsParsing] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [parseError, setParseError] = useState<string | null>(null)
+  const [toast, setToast] = useState<string | null>(null)
+
+  function showToast(msg: string) {
+    setToast(msg)
+    setTimeout(() => setToast(null), 3500)
+  }
+
+  async function handleParse() {
+    if (!text.trim()) return
+    setIsParsing(true)
+    setParseError(null)
+    setPreview(null)
+
+    try {
+      const res = await fetch('/api/sms/parse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      })
+      const data = (await res.json()) as ParseResult & { error?: string }
+      if (!res.ok) {
+        setParseError(data.error ?? 'Parsimine ebaõnnestus')
+      } else {
+        setPreview(data)
+      }
+    } catch {
+      setParseError('Võrgu viga. Kontrolli ühendust.')
+    } finally {
+      setIsParsing(false)
+    }
+  }
+
+  async function handleConfirm() {
+    if (!preview) return
+    setIsSaving(true)
+
+    try {
+      const res = await fetch('/api/sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(preview),
+      })
+      const data = (await res.json()) as { count?: number; error?: string }
+      if (!res.ok) {
+        setParseError(data.error ?? 'Salvestamine ebaõnnestus')
+      } else {
+        showToast(`${data.count ?? preview.items.length} hinda salvestatud ✓`)
+        setText('')
+        setPreview(null)
+        onSaved()
+      }
+    } catch {
+      setParseError('Võrgu viga. Kontrolli ühendust.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  function handleCancel() {
+    setPreview(null)
+    setParseError(null)
+  }
+
+  return (
+    <div className="space-y-3">
+      {/* Toast */}
+      {toast && (
+        <div className="fixed top-4 right-4 z-50 bg-[#0d1117] border border-[#3fb950] text-[#3fb950] rounded-lg px-4 py-3 text-sm font-medium shadow-lg">
+          {toast}
+        </div>
+      )}
+
+      <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 space-y-3">
+        <h3 className="font-semibold text-[#e6edf3] flex items-center gap-2">
+          <span>📱</span> Lisa hinnad SMS-ist
+        </h3>
+
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder={'Kopeeri siia SMS tekst...\n\nNäide: Scandagra 22.05.2026\nNisu: 210 €/t\nOder: 185 €/t\nRaps: 505 €/t'}
+          rows={5}
+          className="w-full bg-[#0d1117] border border-[#30363d] rounded text-[#e6edf3] text-sm p-3 resize-none focus:outline-none focus:border-[#58a6ff] placeholder-[#8b949e] font-mono"
+        />
+
+        {parseError && (
+          <div className="bg-[#2d0f0f] border border-[#f85149] rounded p-3 text-sm text-[#f85149]">
+            {parseError}
+          </div>
+        )}
+
+        <button
+          onClick={handleParse}
+          disabled={!text.trim() || isParsing}
+          className="w-full bg-[#1f6feb] hover:bg-[#388bfd] disabled:opacity-40 text-white font-medium py-2 rounded transition-colors text-sm"
+        >
+          {isParsing ? 'Parsin...' : 'Parsi SMS'}
+        </button>
+      </div>
+
+      {preview && (
+        <ParsePreview
+          result={preview}
+          onConfirm={handleConfirm}
+          onCancel={handleCancel}
+          isSaving={isSaving}
+        />
+      )}
+    </div>
+  )
+}

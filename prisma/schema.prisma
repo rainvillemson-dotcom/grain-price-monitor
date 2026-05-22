@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model SmsPrice {
+  id        Int      @id @default(autoincrement())
+  source    String
+  product   String
+  price     Float
+  unit      String   @default("EUR/t")
+  location  String?
+  rawSms    String
+  date      String
+  createdAt DateTime @default(now())
+}
+
+model MarketPrice {
+  id        Int      @id @default(autoincrement())
+  ticker    String
+  date      String
+  price     Float
+  createdAt DateTime @default(now())
+
+  @@unique([ticker, date])
+}
