@@ -10,7 +10,6 @@ import {
   Tooltip,
   Legend,
   CartesianGrid,
-  Scatter,
 } from 'recharts'
 import type { MarketSeries, SmsPriceRecord } from '@/lib/types'
 
@@ -39,9 +38,11 @@ const SMS_COLORS: Record<string, string> = {
   Uba: '#ff7b72',
 }
 
+// SMS series key prefix to avoid collision with MATIF ticker keys
+const SMS_PREFIX = 'sms__'
+
 function formatXAxis(date: string): string {
-  const d = new Date(date)
-  return d.toLocaleDateString('et-EE', { day: '2-digit', month: '2-digit' })
+  return new Date(date).toLocaleDateString('et-EE', { day: '2-digit', month: '2-digit' })
 }
 
 function formatTooltipDate(date: string): string {
@@ -52,68 +53,112 @@ function formatTooltipDate(date: string): string {
   })
 }
 
-// Merge MATIF series into single date-keyed dataset
-function mergeMatifData(series: MarketSeries[]) {
-  const map = new Map<string, Record<string, number>>()
-  for (const s of series) {
+type ChartRow = Record<string, number | string>
+
+/**
+ * Merge MATIF series + SMS prices into a single array keyed by date.
+ * MATIF keys: ticker (e.g. "EBM.PA")
+ * SMS keys:   "sms__<Product>" (e.g. "sms__Nisu")
+ */
+function buildChartData(
+  grainSeries: MarketSeries[],
+  smsData: SmsPriceRecord[]
+): ChartRow[] {
+  const map = new Map<string, ChartRow>()
+
+  // Add MATIF data
+  for (const s of grainSeries) {
     for (const pt of s.data) {
-      const row = map.get(pt.date) ?? {}
+      const row = map.get(pt.date) ?? { date: pt.date }
       row[s.ticker] = pt.price
       map.set(pt.date, row)
     }
   }
+
+  // Add SMS data — average by product+date if multiple entries
+  const smsByDateProduct = new Map<string, { sum: number; count: number }>()
+  for (const r of smsData) {
+    const key = `${r.date}||${r.product}`
+    const existing = smsByDateProduct.get(key) ?? { sum: 0, count: 0 }
+    existing.sum += r.price
+    existing.count += 1
+    smsByDateProduct.set(key, existing)
+  }
+
+  for (const [key, { sum, count }] of smsByDateProduct) {
+    const [date, product] = key.split('||')
+    const row = map.get(date) ?? { date }
+    row[`${SMS_PREFIX}${product}`] = Math.round((sum / count) * 100) / 100
+    map.set(date, row)
+  }
+
   return Array.from(map.entries())
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, vals]) => ({ date, ...vals }))
+    .map(([, row]) => row)
 }
 
-// Convert SMS prices to chart scatter points
-function smsByProduct(smsData: SmsPriceRecord[]) {
-  const grouped: Record<string, Array<{ date: string; price: number }>> = {}
-  for (const r of smsData) {
-    if (!grouped[r.product]) grouped[r.product] = []
-    grouped[r.product].push({ date: r.date, price: r.price })
-  }
-  return grouped
+function smsProductsInData(smsData: SmsPriceRecord[]): string[] {
+  return [...new Set(smsData.map((r) => r.product))].sort()
+}
+
+interface TooltipPayloadEntry {
+  name: string
+  value: number
+  color: string
+  dataKey: string
 }
 
 interface CustomTooltipProps {
   active?: boolean
-  payload?: Array<{ name: string; value: number; color: string }>
+  payload?: TooltipPayloadEntry[]
   label?: string
 }
 
 function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-3 text-sm shadow-lg">
-      <p className="text-[#8b949e] mb-2">{label ? formatTooltipDate(label) : ''}</p>
-      {payload.map((entry) => (
-        <div key={entry.name} className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full" style={{ background: entry.color }} />
-          <span className="text-[#8b949e]">{entry.name}:</span>
-          <span className="text-[#e6edf3] font-medium">{entry.value?.toFixed(2)} €/t</span>
-        </div>
-      ))}
+    <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-3 text-sm shadow-lg min-w-[160px]">
+      <p className="text-[#8b949e] mb-2 text-xs">{label ? formatTooltipDate(label) : ''}</p>
+      {payload.map((entry) => {
+        const isSms = String(entry.dataKey).startsWith(SMS_PREFIX)
+        return (
+          <div key={entry.dataKey} className="flex items-center gap-2 py-0.5">
+            <span
+              className="w-2 h-2 rounded-full flex-shrink-0"
+              style={{ background: entry.color }}
+            />
+            <span className="text-[#8b949e] text-xs">
+              {isSms ? `SMS ${entry.name}` : entry.name}:
+            </span>
+            <span className="text-[#e6edf3] font-medium ml-auto">
+              {Number(entry.value).toFixed(2)} €/t
+            </span>
+          </div>
+        )
+      })}
     </div>
   )
 }
 
 export default function PriceChart({ matifData, smsData, period, onPeriodChange }: PriceChartProps) {
-  const mergedData = mergeMatifData(matifData)
-  const smsByProd = smsByProduct(smsData)
-
-  const allPrices = matifData.flatMap((s) => s.data.map((d) => d.price)).filter(Boolean)
-  const yMin = allPrices.length ? Math.floor(Math.min(...allPrices) * 0.95) : 'auto'
-  const yMax = allPrices.length ? Math.ceil(Math.max(...allPrices) * 1.05) : 'auto'
-
   const eurusdSeries = matifData.find((s) => s.ticker === 'EURUSD=X')
   const grainSeries = matifData.filter((s) => s.ticker !== 'EURUSD=X')
+  const smsProducts = smsProductsInData(smsData)
+
+  const chartData = buildChartData(grainSeries, smsData)
+
+  // Y-axis domain: include both MATIF and SMS prices
+  const allPrices = [
+    ...grainSeries.flatMap((s) => s.data.map((d) => d.price)),
+    ...smsData.map((r) => r.price),
+  ].filter(Boolean)
+  const yMin = allPrices.length ? Math.floor(Math.min(...allPrices) * 0.95) : 'auto'
+  const yMax = allPrices.length ? Math.ceil(Math.max(...allPrices) * 1.05) : 'auto'
 
   return (
     <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 space-y-4">
       {/* Period selector */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         {PERIODS.map((p) => (
           <button
             key={p.value}
@@ -132,7 +177,7 @@ export default function PriceChart({ matifData, smsData, period, onPeriodChange 
       {/* Main grain chart */}
       <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={mergedData} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
+          <ComposedChart data={chartData} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#21262d" />
             <XAxis
               dataKey="date"
@@ -152,11 +197,14 @@ export default function PriceChart({ matifData, smsData, period, onPeriodChange 
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend
-              formatter={(value) => (
-                <span style={{ color: '#8b949e', fontSize: 12 }}>{value}</span>
-              )}
+              formatter={(value: string) => {
+                const isSms = value.startsWith(SMS_PREFIX)
+                const label = isSms ? `SMS ${value.replace(SMS_PREFIX, '')}` : value
+                return <span style={{ color: '#8b949e', fontSize: 12 }}>{label}</span>
+              }}
             />
 
+            {/* MATIF reference lines — solid */}
             {grainSeries.map((s) => (
               <Line
                 key={s.ticker}
@@ -170,14 +218,19 @@ export default function PriceChart({ matifData, smsData, period, onPeriodChange 
               />
             ))}
 
-            {/* SMS scatter points */}
-            {Object.entries(smsByProd).map(([product, pts]) => (
-              <Scatter
-                key={`sms-${product}`}
-                name={`SMS ${product}`}
-                data={pts}
-                fill={SMS_COLORS[product] ?? '#58a6ff'}
-                r={4}
+            {/* SMS price lines — dashed, dots at data points */}
+            {smsProducts.map((product) => (
+              <Line
+                key={`${SMS_PREFIX}${product}`}
+                type="monotone"
+                dataKey={`${SMS_PREFIX}${product}`}
+                name={`${SMS_PREFIX}${product}`}
+                stroke={SMS_COLORS[product] ?? '#8b949e'}
+                strokeWidth={1.5}
+                strokeDasharray="5 3"
+                dot={{ r: 4, strokeWidth: 1.5, fill: '#0d1117' }}
+                activeDot={{ r: 5 }}
+                connectNulls
               />
             ))}
           </ComposedChart>
@@ -217,7 +270,7 @@ export default function PriceChart({ matifData, smsData, period, onPeriodChange 
                       <div className="bg-[#161b22] border border-[#30363d] rounded p-2 text-xs">
                         <p className="text-[#8b949e]">{label ? formatTooltipDate(label) : ''}</p>
                         <p className="text-[#58a6ff] font-medium">
-                          {(payload[0]?.value as number)?.toFixed(4)}
+                          {Number(payload[0]?.value).toFixed(4)}
                         </p>
                       </div>
                     )
