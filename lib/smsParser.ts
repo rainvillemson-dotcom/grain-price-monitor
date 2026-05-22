@@ -43,7 +43,7 @@ const SOURCE_PATTERNS: [RegExp, string][] = [
 // Tekst mida ei tohiks tõlgendada hindadena
 const STRIP_PATTERNS: RegExp[] = [
   // Loobumistekst (sisaldab telefoni — eemalda enne telefoniregexsi)
-  /loobumiseks.*/gis,
+  /loobumiseks[\s\S]*/gi,
   // URL-id
   /https?:\/\/[^\s]+/gi,
   // Telefoninumbrid — kasuta [ -] mitte \s, et ei söödaks reavahetusi
