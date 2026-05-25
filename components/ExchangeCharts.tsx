@@ -20,6 +20,8 @@ interface ExchangeChartsProps {
 }
 
 const PERIODS = [
+  { value: '1d',  label: '1P' },
+  { value: '5d',  label: '1N' },
   { value: '1mo', label: '1K' },
   { value: '3mo', label: '3K' },
   { value: '6mo', label: '6K' },
@@ -27,16 +29,25 @@ const PERIODS = [
   { value: '2y',  label: '2A' },
 ]
 
-function formatXAxis(date: string): string {
-  return new Date(date).toLocaleDateString('et-EE', { day: '2-digit', month: '2-digit' })
+function makeXAxisFormatter(period: string) {
+  return (date: string): string => {
+    if (period === '1d') return String(date).slice(11, 16)
+    if (period === '5d') {
+      const d = new Date(String(date) + 'Z')
+      const day = d.toLocaleDateString('et-EE', { weekday: 'short' })
+      return `${day} ${String(date).slice(11, 16)}`
+    }
+    return new Date(String(date)).toLocaleDateString('et-EE', { day: '2-digit', month: '2-digit' })
+  }
 }
 
-function formatTooltipDate(date: string): string {
-  return new Date(date).toLocaleDateString('et-EE', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  })
+function makeTooltipDateFormatter(period: string) {
+  return (date: string): string => {
+    if (period === '1d' || period === '5d') return String(date).replace('T', ' ') + ' UTC'
+    return new Date(String(date)).toLocaleDateString('et-EE', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+    })
+  }
 }
 
 interface TooltipEntry {
@@ -51,16 +62,21 @@ function ChartTooltip({
   payload,
   label,
   unit,
+  formatDate,
 }: {
   active?: boolean
   payload?: TooltipEntry[]
   label?: string
   unit?: string
+  formatDate?: (d: string) => string
 }) {
   if (!active || !payload?.length) return null
+  const displayDate = label
+    ? (formatDate ? formatDate(label) : new Date(label).toLocaleDateString('et-EE', { day: '2-digit', month: '2-digit', year: 'numeric' }))
+    : ''
   return (
     <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-3 text-sm shadow-lg min-w-[160px]">
-      <p className="text-[#8b949e] mb-2 text-xs">{label ? formatTooltipDate(label) : ''}</p>
+      <p className="text-[#8b949e] mb-2 text-xs">{displayDate}</p>
       {payload.map((entry) => (
         <div key={entry.dataKey} className="flex items-center gap-2 py-0.5">
           <span
@@ -111,10 +127,13 @@ interface GroupChartProps {
   unitLabel: string
   instruments: ExchangeData[]
   height?: number
+  period: string
 }
 
-function GroupChart({ title, unitLabel, instruments, height = 200 }: GroupChartProps) {
+function GroupChart({ title, unitLabel, instruments, height = 200, period }: GroupChartProps) {
   const hasHistory = instruments.some((i) => i.history.length > 0)
+  const xFormatter = makeXAxisFormatter(period)
+  const tooltipDateFormatter = makeTooltipDateFormatter(period)
 
   return (
     <div>
@@ -127,7 +146,9 @@ function GroupChart({ title, unitLabel, instruments, height = 200 }: GroupChartP
           style={{ height }}
           className="flex items-center justify-center text-[#484f58] text-sm border border-dashed border-[#30363d] rounded-lg"
         >
-          Ajaloolised andmed kogunevad iga päevaga
+          {period === '1d' || period === '5d'
+            ? 'Intraday andmed saadaval ainult avatud börsi ajal'
+            : 'Ajaloolised andmed kogunevad iga päevaga'}
         </div>
       ) : (
         <div style={{ height }}>
@@ -139,7 +160,7 @@ function GroupChart({ title, unitLabel, instruments, height = 200 }: GroupChartP
               <CartesianGrid strokeDasharray="3 3" stroke="#21262d" />
               <XAxis
                 dataKey="date"
-                tickFormatter={formatXAxis}
+                tickFormatter={xFormatter}
                 tick={{ fill: '#8b949e', fontSize: 10 }}
                 axisLine={{ stroke: '#30363d' }}
                 tickLine={false}
@@ -154,9 +175,15 @@ function GroupChart({ title, unitLabel, instruments, height = 200 }: GroupChartP
                 tickFormatter={(v: number) => String(v)}
               />
               <Tooltip
-                content={
-                  <ChartTooltip unit={unitLabel} />
-                }
+                content={({ active, payload, label }) => (
+                  <ChartTooltip
+                    active={active}
+                    payload={payload as TooltipEntry[]}
+                    label={String(label ?? '')}
+                    unit={unitLabel}
+                    formatDate={tooltipDateFormatter}
+                  />
+                )}
               />
               {instruments.length > 1 && (
                 <Legend
@@ -229,6 +256,7 @@ export default function ExchangeCharts({
           unitLabel="EUR/t"
           instruments={matifInst}
           height={200}
+          period={period}
         />
       )}
 
@@ -239,6 +267,7 @@ export default function ExchangeCharts({
           unitLabel="USDc/bu"
           instruments={cbotInst}
           height={200}
+          period={period}
         />
       )}
 
@@ -249,6 +278,7 @@ export default function ExchangeCharts({
           unitLabel="USD/bbl"
           instruments={oilInst}
           height={160}
+          period={period}
         />
       )}
 
@@ -259,6 +289,7 @@ export default function ExchangeCharts({
           unitLabel="EUR"
           instruments={fxInst}
           height={140}
+          period={period}
         />
       )}
     </div>

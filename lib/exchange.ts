@@ -43,7 +43,19 @@ export interface ExchangeResponse {
 // Tickers that have meta price but no historical timestamps
 const META_ONLY_TICKERS = new Set(['EBM.PA', 'ECO.PA'])
 
-type Period = '1mo' | '3mo' | '6mo' | '1y' | '2y' | '5d'
+type Period = '1d' | '5d' | '1mo' | '3mo' | '6mo' | '1y' | '2y'
+
+function getInterval(period: Period): string {
+  if (period === '1d') return '5m'
+  if (period === '5d') return '1h'
+  return '1d'
+}
+
+function tsToLabel(ts: number, isIntraday: boolean): string {
+  const d = new Date(ts * 1000)
+  if (isIntraday) return d.toISOString().slice(0, 16) // "2026-05-22T14:30"
+  return d.toISOString().split('T')[0]
+}
 
 interface YahooChartMeta {
   regularMarketPrice: number
@@ -68,10 +80,6 @@ interface YahooResponse {
   }
 }
 
-function tsToDate(ts: number): string {
-  return new Date(ts * 1000).toISOString().split('T')[0]
-}
-
 function todayISO(): string {
   return new Date().toISOString().split('T')[0]
 }
@@ -81,11 +89,13 @@ function formatTime(d: Date): string {
 }
 
 async function yahooFetch(ticker: string, period: Period): Promise<YahooChartResult> {
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=${period}&includePrePost=false`
+  const interval = getInterval(period)
+  const revalidate = period === '1d' ? 300 : 900
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=${interval}&range=${period}&includePrePost=false`
 
   const res = await fetch(url, {
     headers: { 'User-Agent': 'Mozilla/5.0' },
-    next: { revalidate: 900 },
+    next: { revalidate },
   })
 
   if (!res.ok) throw new Error(`Yahoo Finance ${ticker}: HTTP ${res.status}`)
@@ -124,6 +134,7 @@ export async function fetchExchangeInstrument(
   }
 
   let history: ExchangeDataPoint[] = []
+  const isIntraday = period === '1d' || period === '5d'
 
   if (!META_ONLY_TICKERS.has(ticker)) {
     const timestamps = result.timestamp ?? []
@@ -133,7 +144,7 @@ export async function fetchExchangeInstrument(
       const p = closes[i]
       if (p !== null && p !== undefined && !isNaN(p)) {
         history.push({
-          date: tsToDate(timestamps[i]),
+          date: tsToLabel(timestamps[i], isIntraday),
           price: Math.round(p * 10000) / 10000,
         })
       }

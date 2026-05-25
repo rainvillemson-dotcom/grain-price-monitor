@@ -76,22 +76,25 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = request.nextUrl
     const periodParam = searchParams.get('period') ?? '1y'
-    const validPeriods = ['1mo', '3mo', '6mo', '1y', '2y'] as const
+    const validPeriods = ['1d', '5d', '1mo', '3mo', '6mo', '1y', '2y'] as const
     type ValidPeriod = (typeof validPeriods)[number]
     const period: ValidPeriod = (validPeriods as readonly string[]).includes(periodParam)
       ? (periodParam as ValidPeriod)
       : '1y'
 
-    // Try DB cache first
-    try {
-      const cached = await tryLoadFromCache()
-      if (cached && cached.instruments.length > 0) {
-        return NextResponse.json(cached, {
-          headers: { 'X-Data-Source': 'cache' },
-        })
+    // DB cache only holds daily data — skip for intraday periods
+    const isIntraday = period === '1d' || period === '5d'
+    if (!isIntraday) {
+      try {
+        const cached = await tryLoadFromCache()
+        if (cached && cached.instruments.length > 0) {
+          return NextResponse.json(cached, {
+            headers: { 'X-Data-Source': 'cache' },
+          })
+        }
+      } catch {
+        // DB unavailable, continue to live fetch
       }
-    } catch {
-      // DB unavailable, continue to live fetch
     }
 
     const data = await fetchAllExchangeData(period)
