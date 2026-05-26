@@ -142,12 +142,12 @@ function GroupChart({ title, unitLabel, instruments, height = 200, period }: Gro
     <div>
       <p className="text-[#8b949e] text-xs mb-2 font-medium">
         {title}{' '}
-        <span className="text-[#484f58] font-normal">· {unitLabel}</span>
+        <span className="text-[#8b949e] font-normal">· {unitLabel}</span>
       </p>
       {!hasHistory ? (
         <div
           style={{ height }}
-          className="flex items-center justify-center text-[#484f58] text-sm border border-dashed border-[#30363d] rounded-lg"
+          className="flex items-center justify-center text-[#8b949e] text-sm border border-dashed border-[#30363d] rounded-lg"
         >
           {period === '1d' || period === '5d'
             ? 'Intraday andmed saadaval ainult avatud börsi ajal'

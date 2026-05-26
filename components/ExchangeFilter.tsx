@@ -60,7 +60,7 @@ export default function ExchangeFilter({ selected, onChange }: ExchangeFilterPro
           <path d="M2 4L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
         <span>Instrumendid</span>
-        <span className="text-[#484f58]">
+        <span className="text-[#8b949e]">
           {selectedCount === totalCount ? 'kõik' : `${selectedCount}/${totalCount}`}
         </span>
         {/* Colored dots showing active groups */}
@@ -87,7 +87,7 @@ export default function ExchangeFilter({ selected, onChange }: ExchangeFilterPro
               if (!instruments.length) return null
               return (
                 <div key={group.key}>
-                  <p className="text-[#484f58] text-[10px] font-medium uppercase tracking-wider mb-2">
+                  <p className="text-[#8b949e] text-[10px] font-medium uppercase tracking-wider mb-2">
                     {group.label}
                   </p>
                   <div className="space-y-2">

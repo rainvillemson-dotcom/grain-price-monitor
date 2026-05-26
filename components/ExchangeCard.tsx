@@ -54,7 +54,7 @@ export default function ExchangeCard({ instrument }: ExchangeCardProps) {
 
       {!hasPrice ? (
         <div className="space-y-2">
-          <div className="text-4xl font-bold leading-none" style={{ color: '#484f58' }}>
+          <div className="text-4xl font-bold leading-none" style={{ color: '#8b949e' }}>
             -
           </div>
           <div className="text-xs" style={{ color: '#8b949e' }}>

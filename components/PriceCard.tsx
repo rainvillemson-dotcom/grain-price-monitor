@@ -41,7 +41,7 @@ export default function PriceCard({ label, latest, unit = 'EUR/t' }: PriceCardPr
               {latest.price.toFixed(2)}
             </span>
             {unit && (
-              <span className="text-[10px] leading-none" style={{ color: '#484f58' }}>
+              <span className="text-[10px] leading-none" style={{ color: '#8b949e' }}>
                 {unit}
               </span>
             )}
@@ -57,11 +57,11 @@ export default function PriceCard({ label, latest, unit = 'EUR/t' }: PriceCardPr
             </div>
           )}
           {isZero && (
-            <div className="text-xs mt-1" style={{ color: '#484f58' }}>muutus puudub</div>
+            <div className="text-xs mt-1" style={{ color: '#8b949e' }}>muutus puudub</div>
           )}
         </>
       ) : (
-        <div className="text-4xl font-bold leading-none" style={{ color: '#484f58' }}>
+        <div className="text-4xl font-bold leading-none" style={{ color: '#8b949e' }}>
           —
         </div>
       )}

@@ -22,7 +22,7 @@ export default function HomePage() {
           <span className="text-sm font-semibold text-[#e6edf3] tracking-tight">
             Viljahindade Monitor
           </span>
-          <span className="text-xs text-[#484f58]">Eesti · EUR/t</span>
+          <span className="text-xs text-[#8b949e]">Eesti · EUR/t</span>
         </div>
       </header>
 

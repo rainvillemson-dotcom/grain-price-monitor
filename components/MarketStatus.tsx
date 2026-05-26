@@ -42,18 +42,18 @@ export default function MarketStatus({
             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#3fb950]" />
           </span>
           <span className="text-[#3fb950] font-medium">Avatud</span>
-          <span className="text-[#484f58]">· {status.detail}</span>
+          <span className="text-[#8b949e]">· {status.detail}</span>
         </span>
       ) : (
         <span className="flex items-center gap-1.5 text-xs text-[#8b949e]">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#484f58]" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#8b949e]" />
           {status.label} · {status.detail}
         </span>
       )}
 
       {/* Meta info */}
       {time && (
-        <span className="text-[#484f58] text-xs">
+        <span className="text-[#8b949e] text-xs">
           {time}
           {!isRefreshing && countdown && <> · {countdown}</>}
         </span>
@@ -63,7 +63,7 @@ export default function MarketStatus({
       <button
         onClick={onRefresh}
         disabled={isRefreshing}
-        className="text-[#484f58] hover:text-[#8b949e] disabled:opacity-40 transition-colors text-xs touch-target flex items-center justify-center"
+        className="text-[#8b949e] hover:text-[#e6edf3] disabled:opacity-40 transition-colors text-xs touch-target flex items-center justify-center"
         title="Uuenda kohe"
       >
         <svg

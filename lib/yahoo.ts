@@ -11,8 +11,8 @@ const CHART_TICKERS = {
 
 // Tickers that only expose current price via meta (MATIF Euronext)
 const META_ONLY_TICKERS = {
-  'EBM.PA': { label: 'MATIF Nisu', color: '#3fb950' },
-  'ECO.PA': { label: 'MATIF Raps', color: '#d29922' },
+  'EBM.PA': { label: 'Nisu', color: '#3fb950' },
+  'ECO.PA': { label: 'Raps', color: '#d29922' },
 } as const
 
 export const TICKER_META: Record<string, { label: string; color: string }> = {

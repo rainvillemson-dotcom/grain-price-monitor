@@ -51,8 +51,8 @@ async function tryLoadFromCache(
   }
 
   const TICKER_META: Record<string, { label: string; color: string }> = {
-    'EBM.PA': { label: 'MATIF Nisu', color: '#3fb950' },
-    'ECO.PA': { label: 'MATIF Raps', color: '#d29922' },
+    'EBM.PA': { label: 'Nisu', color: '#3fb950' },
+    'ECO.PA': { label: 'Raps', color: '#d29922' },
     'EURUSD=X': { label: 'EUR/USD', color: '#58a6ff' },
   }
 

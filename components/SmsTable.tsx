@@ -66,7 +66,7 @@ export default function SmsTable({ records, onDelete }: SmsTableProps) {
                   <td className="px-3 py-3 text-right">
                     <button
                       onClick={() => onDelete(r.id)}
-                      className="touch-target flex items-center justify-center text-[#484f58] hover:text-[#f85149] transition-colors cursor-pointer"
+                      className="touch-target flex items-center justify-center text-[#8b949e] hover:text-[#f85149] transition-colors cursor-pointer"
                       aria-label="Kustuta kirje"
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
