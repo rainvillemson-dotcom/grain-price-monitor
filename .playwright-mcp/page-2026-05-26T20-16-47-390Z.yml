@@ -1,0 +1,26 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: Viljahindade Monitor
+        - generic [ref=e6]: Eesti · EUR/t
+    - generic [ref=e7]:
+      - generic [ref=e219]:
+        - generic [ref=e221]:
+          - paragraph [ref=e222]: Kirjuta või kopeeri hinnad siia — süsteem tuvastab automaatselt. Formaat ei pea olema täpne.
+          - 'textbox "Sobib igasugune formaat, näiteks: Nisu 210, Oder 185, Raps 505 või 210 nisu 185 oder 505 raps või kopeeri otse SMS-ist" [ref=e223]':
+            - /placeholder: "Sobib igasugune formaat, näiteks:\n\nNisu 210, Oder 185, Raps 505\n\nvõi\n\n210 nisu\n185 oder\n505 raps\n\nvõi kopeeri otse SMS-ist"
+          - button "Tuvasta hinnad" [disabled] [ref=e224] [cursor=pointer]
+        - button "Salvestatud hinnad11" [ref=e226] [cursor=pointer]:
+          - generic [ref=e227]: Salvestatud hinnad11
+          - img [ref=e228]
+      - navigation [ref=e25]:
+        - generic [ref=e26]:
+          - button "Hinnad" [ref=e27] [cursor=pointer]:
+            - img [ref=e28]
+            - generic [ref=e30]: Hinnad
+          - button "Lisa hind" [active] [ref=e31] [cursor=pointer]:
+            - img [ref=e32]
+            - generic [ref=e34]: Lisa hind
+  - alert [ref=e35]
+  - generic [ref=e218]: "03.05"

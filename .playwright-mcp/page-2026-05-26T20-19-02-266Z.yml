@@ -1,0 +1,82 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: Viljahindade Monitor
+        - generic [ref=e6]: Eesti · EUR/t
+    - generic [ref=e7]:
+      - generic [ref=e9]:
+        - generic [ref=e10]:
+          - generic [ref=e11]:
+            - generic [ref=e12]: MATIF Nisu
+            - generic [ref=e13]:
+              - generic [ref=e14]: "190.25"
+              - generic [ref=e15]: EUR/t
+            - generic [ref=e16]:
+              - text: ▲ 1.75
+              - generic [ref=e17]: (+0.93%)
+          - generic [ref=e18]:
+            - generic [ref=e19]: MATIF Raps
+            - generic [ref=e20]:
+              - generic [ref=e21]: "400.00"
+              - generic [ref=e22]: EUR/t
+            - generic [ref=e23]:
+              - text: ▲ 7.25
+              - generic [ref=e24]: (+1.85%)
+        - generic [ref=e25]:
+          - generic [ref=e26]: EUR/USD kurss
+          - generic [ref=e28]: "1.1600"
+        - generic [ref=e29]:
+          - generic [ref=e30]:
+            - button "1 kuu" [ref=e31] [cursor=pointer]
+            - button "3 kuud" [ref=e32] [cursor=pointer]
+            - button "6 kuud" [ref=e33] [cursor=pointer]
+            - button "1 aasta" [ref=e34] [cursor=pointer]
+            - button "2 aastat" [ref=e35] [cursor=pointer]
+          - generic [ref=e36]:
+            - button "Kõik" [ref=e37] [cursor=pointer]
+            - button "Nisu" [ref=e38] [cursor=pointer]
+            - button "Raps" [ref=e39] [cursor=pointer]
+            - button "Oder" [ref=e40] [cursor=pointer]
+            - button "Hernes" [ref=e41] [cursor=pointer]
+          - img [ref=e45]:
+            - generic [ref=e50]:
+              - generic [ref=e52]: "26.02"
+              - generic [ref=e54]: "10.03"
+              - generic [ref=e56]: "20.03"
+              - generic [ref=e58]: "01.04"
+              - generic [ref=e60]: "14.04"
+              - generic [ref=e62]: "24.04"
+              - generic [ref=e64]: "07.05"
+              - generic [ref=e66]: "26.05"
+            - generic [ref=e68]:
+              - generic [ref=e70]: "161"
+              - generic [ref=e72]: "256"
+              - generic [ref=e74]: "351"
+              - generic [ref=e76]: "536"
+          - generic [ref=e105]:
+            - paragraph [ref=e106]: EUR/USD
+            - img [ref=e110]:
+              - generic [ref=e112]:
+                - generic [ref=e114]: "26.02"
+                - generic [ref=e116]: "10.03"
+                - generic [ref=e118]: "20.03"
+                - generic [ref=e120]: "31.03"
+                - generic [ref=e122]: "12.04"
+                - generic [ref=e124]: "22.04"
+                - generic [ref=e126]: "04.05"
+                - generic [ref=e128]: "26.05"
+              - generic [ref=e130]:
+                - generic [ref=e132]: "1.140"
+                - generic [ref=e134]: "1.160"
+                - generic [ref=e136]: "1.180"
+      - navigation [ref=e139]:
+        - generic [ref=e140]:
+          - button "Hinnad" [active] [ref=e141] [cursor=pointer]:
+            - img [ref=e142]
+            - generic [ref=e144]: Hinnad
+          - button "Lisa hind" [ref=e145] [cursor=pointer]:
+            - img [ref=e146]
+            - generic [ref=e148]: Lisa hind
+  - alert [ref=e149]
+  - generic [ref=e150]: "161"

@@ -9,7 +9,6 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  Legend,
   CartesianGrid,
 } from 'recharts'
 import type { MarketSeries, SmsPriceRecord } from '@/lib/types'
@@ -274,16 +273,19 @@ export default function PriceChart({ matifData, smsData, period, onPeriodChange 
 
   return (
     <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 space-y-4">
-      {/* Perioodi valik */}
-      <div className="flex items-center gap-2 flex-wrap">
+      {/* Perioodi valik — horisontaalselt keritav, ei murdu */}
+      <div
+        className="flex gap-2 overflow-x-auto pb-0.5"
+        style={{ flexWrap: 'nowrap', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
         {PERIODS.map((p) => (
           <button
             key={p.value}
             onClick={() => onPeriodChange(p.value)}
-            className={`px-3 py-1 text-sm rounded transition-colors ${
+            className={`flex-shrink-0 px-3 py-1.5 text-sm rounded-lg transition-colors cursor-pointer ${
               period === p.value
                 ? 'border border-[#3fb950] bg-[#0d1117] text-[#3fb950] font-medium'
-                : 'border border-[#30363d] text-[#8b949e] hover:text-[#e6edf3] hover:border-[#8b949e]'
+                : 'border border-[#30363d] text-[#8b949e]'
             }`}
           >
             {p.label}
@@ -292,43 +294,35 @@ export default function PriceChart({ matifData, smsData, period, onPeriodChange 
       </div>
 
       {availableProducts.length > 0 && (
-        <div className="space-y-2">
-          <div className="flex items-center justify-between gap-3 flex-wrap">
-            <p className="text-[#8b949e] text-xs uppercase tracking-wider">Graafikul kuvatavad tooted</p>
-            <div className="flex items-center gap-3 text-[11px]">
+        <div className="flex gap-2 flex-wrap">
+          <button
+            onClick={() =>
+              selectedProducts.size < availableProducts.length
+                ? setSelectedProducts(new Set(availableProducts))
+                : setSelectedProducts(new Set())
+            }
+            className="touch-target px-3 py-1 text-sm rounded-lg transition-colors cursor-pointer"
+            style={{ border: '1px solid #30363d', color: '#8b949e' }}
+          >
+            Kõik
+          </button>
+          {availableProducts.map((product) => {
+            const active = selectedProducts.has(product)
+            return (
               <button
-                onClick={() => setSelectedProducts(new Set(availableProducts))}
-                className="text-[#8b949e] hover:text-[#e6edf3] transition-colors"
+                key={product}
+                onClick={() => toggleProduct(product)}
+                className="touch-target px-3 py-1 text-sm rounded-lg transition-colors cursor-pointer"
+                style={
+                  active
+                    ? { backgroundColor: '#0d1117', border: '1px solid #3fb950', color: '#3fb950' }
+                    : { backgroundColor: 'transparent', border: '1px solid #30363d', color: '#8b949e' }
+                }
               >
-                Kõik
+                {product}
               </button>
-              <button
-                onClick={() => setSelectedProducts(new Set())}
-                className="text-[#8b949e] hover:text-[#e6edf3] transition-colors"
-              >
-                Peida kõik
-              </button>
-            </div>
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            {availableProducts.map((product) => {
-              const active = selectedProducts.has(product)
-              return (
-                <button
-                  key={product}
-                  onClick={() => toggleProduct(product)}
-                  className="touch-target px-3 py-1 text-xs rounded-lg transition-colors cursor-pointer"
-                  style={
-                    active
-                      ? { backgroundColor: '#0d1117', border: '1px solid #3fb950', color: '#3fb950' }
-                      : { backgroundColor: 'transparent', border: '1px solid #30363d', color: '#8b949e' }
-                  }
-                >
-                  {product}
-                </button>
-              )
-            })}
-          </div>
+            )
+          })}
         </div>
       )}
 
@@ -359,19 +353,6 @@ export default function PriceChart({ matifData, smsData, period, onPeriodChange 
                 width={48}
               />
               <Tooltip content={<CustomTooltip />} />
-              <Legend
-                formatter={(value: string) => {
-                  if (value.startsWith(SMS_PREFIX)) {
-                    const { source, product } = parseSmsChartKey(value)
-                    return (
-                      <span style={{ color: SOURCE_COLORS[source] ?? '#8b949e', fontSize: 12 }}>
-                        {source} {product}
-                      </span>
-                    )
-                  }
-                  return <span style={{ color: '#8b949e', fontSize: 12 }}>{value}</span>
-                }}
-              />
 
               {visibleGrainSeries.map((s) => (
                 <Line

@@ -1,0 +1,170 @@
+- generic [active] [ref=e1]:
+  - link "Liigu põhisisu juurde" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - navigation "Peamine navigatsioon" [ref=e3]:
+    - link "Põllu Piirangud" [ref=e4] [cursor=pointer]:
+      - /url: /
+    - button "Menüü" [ref=e5] [cursor=pointer]:
+      - img [ref=e6]
+  - generic [ref=e7]:
+    - generic [ref=e8]:
+      - generic [ref=e9]: PRIA · Keskkonnaamet · EELIS
+      - heading "Arvuta oma põllu piirangud sekunditega" [level=1] [ref=e10]
+      - paragraph [ref=e11]: Sisesta PRIA põllumassiivi number ja kalkulaator näitab kohe, millised taimekaitse puhvervööndid, veekaitsevööndid ja pritsimispiirangud sinu põllule kehtivad. Andmed tulevad otse PRIA, Keskkonnaameti ja Maa-ameti registritest — reaalajas, kaardil, hektarites.
+      - generic [ref=e12]:
+        - link "Alusta arvutamist →" [ref=e13] [cursor=pointer]:
+          - /url: /app
+        - link "Mis piiranguid arvestab?" [ref=e14] [cursor=pointer]:
+          - /url: "#restrictions"
+    - generic [ref=e16]:
+      - paragraph [ref=e17]: Arvutatavad piirangud
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - img [ref=e21]
+          - generic [ref=e23]:
+            - strong [ref=e24]: Veekaitsevöönd §118
+            - text: 20m / 10m / 1m veekogust
+        - generic [ref=e25]:
+          - img [ref=e27]
+          - generic [ref=e29]:
+            - strong [ref=e30]: SPe3 mittesihtmärktaimed
+            - text: puhver põllumajanduses mittekasutatavast maast
+        - generic [ref=e31]:
+          - img [ref=e33]
+          - generic [ref=e36]:
+            - strong [ref=e37]: SPe3 elanikud ja avalikud kohad
+            - text: puhver elamutest, teedest, koolidest, parkidest
+        - generic [ref=e38]:
+          - img [ref=e40]
+          - generic [ref=e43]:
+            - strong [ref=e44]: Põhjavesi — allikad ja karstilehtrid
+            - text: 10m (Pandivere/Adavere-Põltsamaa NTA piires 50m)
+    - img "Põllu Piirangute Kalkulaatori tulemuste näide — massiiv 67350880620" [ref=e47]
+    - generic [ref=e48]:
+      - generic [ref=e49]:
+        - heading "Mida arvutatakse?" [level=2] [ref=e50]
+        - paragraph [ref=e51]: Iga päring kontrollib nelja piirangutüüpi, joonistab tulemused kaardile ja annab täpsed hektarid.
+      - generic [ref=e52]:
+        - generic [ref=e53]:
+          - img [ref=e55]
+          - heading "Veekaitsevööndid (§118)" [level=3] [ref=e57]
+          - paragraph [ref=e58]: Tuvastab veekogud Keskkonnaagentuuri andmetest. Läänemeri ja Peipsi 20m, järved ja jõed 10m, väikekraavid 1m.
+        - generic [ref=e59]:
+          - img [ref=e61]
+          - heading "Mittesihtmärktaimede puhver" [level=3] [ref=e63]
+          - paragraph [ref=e64]: Leiab põlluserva metsa, tee ja kraavi suunas. Naabri põllu suunas puhvrit ei rakendata.
+        - generic [ref=e65]:
+          - img [ref=e67]
+          - heading "Elanike ja teede puhver" [level=3] [ref=e70]
+          - paragraph [ref=e71]: Elamud, koolid, pargid ja teed Maa-ameti andmetest. Arvestab kattuvust sinu massiiviga.
+        - generic [ref=e72]:
+          - img [ref=e74]
+          - heading "Põhjavee kaitse" [level=3] [ref=e77]
+          - paragraph [ref=e78]: Allikad ja karstilehtrid EELIS andmetest. Nitraaditundlikul alal 50m, mujal 10m.
+        - generic [ref=e79]:
+          - img [ref=e81]
+          - heading "Kihiline kaart" [level=3] [ref=e83]
+          - paragraph [ref=e84]: Massiivi piir, veekogud, puhvrid ja kattuvused kaardil korraga. Iga kiht lülitub sisse-välja.
+        - generic [ref=e85]:
+          - img [ref=e87]
+          - heading "Täpsed hektarid" [level=3] [ref=e89]
+          - paragraph [ref=e90]: Iga piirangu kattuvus hektarites. Kattuvad alad arvestatakse kokku ainult ühe korra.
+    - generic [ref=e92]:
+      - heading "Kolm sammu" [level=2] [ref=e93]
+      - generic [ref=e94]:
+        - generic [ref=e95]:
+          - generic [ref=e96]: "1"
+          - generic [ref=e97]:
+            - heading "Massiivi number" [level=3] [ref=e98]
+            - paragraph [ref=e99]: Sisesta PRIA registri number. Piir ja asukoht tulevad automaatselt.
+        - generic [ref=e100]:
+          - generic [ref=e101]: "2"
+          - generic [ref=e102]:
+            - heading "SPe3 puhvrid" [level=3] [ref=e103]
+            - paragraph [ref=e104]: Lisa preparaadi infolehelt veekogu, mittesihtmärktaimede ja elanike puhvri meetrid.
+        - generic [ref=e105]:
+          - generic [ref=e106]: "3"
+          - generic [ref=e107]:
+            - heading "Tulemused" [level=3] [ref=e108]
+            - paragraph [ref=e109]: Kaart ja hektarid. Näed kohe, mis osa massivist jääb pritsimisalast välja.
+    - generic [ref=e110]:
+      - heading "Hind" [level=2] [ref=e111]
+      - generic [ref=e112]:
+        - generic [ref=e113]:
+          - heading "Tasuta" [level=3] [ref=e114]
+          - generic [ref=e115]: 0€ / aasta
+          - list [ref=e116]:
+            - listitem [ref=e117]: 5 päringut kuus
+            - listitem [ref=e118]: Kõik piirangutüübid
+            - listitem [ref=e119]: Interaktiivne kaart
+            - listitem [ref=e120]: E-maili tugi
+          - link "Alusta tasuta" [ref=e121] [cursor=pointer]:
+            - /url: /app
+        - generic [ref=e122]:
+          - text: Populaarseim
+          - heading "Pro" [level=3] [ref=e123]
+          - generic [ref=e124]: 14,99€ / aasta
+          - list [ref=e125]:
+            - listitem [ref=e126]: Piiramatu arv päringuid
+            - listitem [ref=e127]: Kõik piirangutüübid
+            - listitem [ref=e128]: Interaktiivne kaart
+          - link "Vali Pro →" [ref=e129] [cursor=pointer]:
+            - /url: /app
+    - generic [ref=e131]:
+      - heading "Korduma kippuvad küsimused" [level=2] [ref=e132]
+      - button "Mis on SPe3 ohulause? +" [ref=e134] [cursor=pointer]
+      - button "Mis on SPe8 ja miks seda rakenduses ei ole? +" [ref=e136] [cursor=pointer]
+      - button "Mis veekaitsevööndi laius kehtib minu kraavile? +" [ref=e138] [cursor=pointer]
+      - button "Kas puhvrit saab triivi vähendavate otsakutega vähendada? +" [ref=e140] [cursor=pointer]
+      - button "Kust andmed tulevad? +" [ref=e142] [cursor=pointer]
+      - button "Kas saan tühistada igal ajal? +" [ref=e144] [cursor=pointer]
+    - generic [ref=e145]:
+      - heading "Juhendid" [level=2] [ref=e146]
+      - paragraph [ref=e147]: Loe lähemalt piirangutüüpidest, mida kalkulaator arvutab.
+      - generic [ref=e148]:
+        - link "Veekaitsevöönd — laiused, piirangud ja arvutamine Kui lai on veekaitsevöönd sinu kraavi, jõe või järve ääres? Veeseaduse §118 laiused ja keelatud tegevused. Loe juhend →" [ref=e149] [cursor=pointer]:
+          - /url: /veekaitsevoond-guide
+          - heading "Veekaitsevöönd — laiused, piirangud ja arvutamine" [level=3] [ref=e150]
+          - paragraph [ref=e151]: Kui lai on veekaitsevöönd sinu kraavi, jõe või järve ääres? Veeseaduse §118 laiused ja keelatud tegevused.
+          - text: Loe juhend →
+        - link "SPe3 piirangud — taimekaitse puhvervööndid Mis on SPe3 märgistus etiketil? Veekogu, mittesihtmärktaimede ja elanike puhver selgitatuna. Loe juhend →" [ref=e152] [cursor=pointer]:
+          - /url: /spe3-piirangud
+          - heading "SPe3 piirangud — taimekaitse puhvervööndid" [level=3] [ref=e153]
+          - paragraph [ref=e154]: Mis on SPe3 märgistus etiketil? Veekogu, mittesihtmärktaimede ja elanike puhver selgitatuna.
+          - text: Loe juhend →
+        - 'link "Taimekaitsevahendite kasutuspiirangud Kõik piirangutüübid ühes kohas: veekaitsevöönd, SPe3, nitraaditundlik ala, maaparandus ja eesvoolu kaitsevöönd. Loe juhend →" [ref=e155] [cursor=pointer]':
+          - /url: /kasutuspiirangud
+          - heading "Taimekaitsevahendite kasutuspiirangud" [level=3] [ref=e156]
+          - paragraph [ref=e157]: "Kõik piirangutüübid ühes kohas: veekaitsevöönd, SPe3, nitraaditundlik ala, maaparandus ja eesvoolu kaitsevöönd."
+          - text: Loe juhend →
+    - generic [ref=e158]:
+      - generic [ref=e159]:
+        - heading "Valmis arvutama?" [level=2] [ref=e160]
+        - paragraph [ref=e161]: 5 tasuta päringut kuus, konto loomine alla minuti.
+      - link "Ava kalkulaator →" [ref=e162] [cursor=pointer]:
+        - /url: /app
+    - generic [ref=e163]:
+      - generic [ref=e164]:
+        - text: © 2026 Põllu Piirangute Kalkulaator ·
+        - link "Põllumärkmik" [ref=e165] [cursor=pointer]:
+          - /url: https://www.pollumarkmik.ee
+      - generic [ref=e166]:
+        - link "Meist" [ref=e167] [cursor=pointer]:
+          - /url: /meist
+        - link "Privaatsus" [ref=e168] [cursor=pointer]:
+          - /url: /privacy
+        - link "Tingimused" [ref=e169] [cursor=pointer]:
+          - /url: /terms
+        - link "Kontakt" [ref=e170] [cursor=pointer]:
+          - /url: mailto:info@põllumärkmik.ee
+        - link "Facebook" [ref=e171] [cursor=pointer]:
+          - /url: https://www.facebook.com/profile.php?id=61589224187083
+          - img [ref=e172]
+          - text: Facebook
+  - generic [ref=e174]:
+    - generic [ref=e175]:
+      - text: Kasutame Google Analytics küpsiseid teenuse parandamiseks.
+      - link "Loe lähemalt" [ref=e176] [cursor=pointer]:
+        - /url: /privacy#kupsised
+    - button "Keeldun" [ref=e177] [cursor=pointer]
+    - button "Nõustun" [ref=e178] [cursor=pointer]

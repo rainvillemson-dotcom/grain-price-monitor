@@ -1,0 +1,15 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: Viljahindade Monitor
+        - generic [ref=e6]: Eesti · EUR/t
+    - navigation [ref=e25]:
+      - generic [ref=e26]:
+        - button "Hinnad" [ref=e27] [cursor=pointer]:
+          - img [ref=e28]
+          - generic [ref=e30]: Hinnad
+        - button "Lisa hind" [ref=e31] [cursor=pointer]:
+          - img [ref=e32]
+          - generic [ref=e34]: Lisa hind
+  - alert [ref=e35]

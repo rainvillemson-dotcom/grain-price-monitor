@@ -70,21 +70,38 @@ export default function MarketDashboard() {
     { ...data.eurusd, ticker: 'EURUSD=X', label: 'EUR/USD', color: '#58a6ff', latest: data.eurusd.latest },
   ]
 
+  const eurusd = data.eurusd.latest
+  const eurusdChange = eurusd.change
+  const eurusdPositive = eurusdChange >= 0
+
   return (
     <div className="space-y-4">
-      {/* Price cards */}
+      {/* Viljahinnad — 2 kaarti */}
       <div className="grid grid-cols-2 gap-3">
         {grainSeries.map((s) => (
           <PriceCard key={s.ticker} ticker={s.ticker} label={s.label} latest={s.latest} />
         ))}
-        <PriceCard
-          key="EURUSD=X"
-          ticker="EURUSD=X"
-          label="EUR/USD"
-          latest={data.eurusd.latest}
-          unit=""
-        />
       </div>
+
+      {/* EUR/USD — kompaktne rida */}
+      {eurusd.price > 0 && (
+        <div
+          className="flex items-center justify-between rounded-xl px-4 py-3"
+          style={{ backgroundColor: '#161b22' }}
+        >
+          <span className="text-sm font-medium" style={{ color: '#8b949e' }}>EUR/USD kurss</span>
+          <div className="flex items-center gap-3">
+            <span className="text-lg font-bold num" style={{ color: '#e6edf3' }}>
+              {eurusd.price.toFixed(4)}
+            </span>
+            {eurusdChange !== 0 && (
+              <span className="text-sm font-medium" style={{ color: eurusdPositive ? '#3fb950' : '#f85149' }}>
+                {eurusdPositive ? '▲' : '▼'} {Math.abs(eurusd.changePct).toFixed(2)}%
+              </span>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Chart — grain with historical data + EUR/USD */}
       <PriceChart
