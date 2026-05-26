@@ -63,12 +63,12 @@ export default function MarketStatus({
       <button
         onClick={onRefresh}
         disabled={isRefreshing}
-        className="text-[#484f58] hover:text-[#8b949e] disabled:opacity-40 transition-colors text-xs"
-        title="Uuenda"
+        className="text-[#484f58] hover:text-[#8b949e] disabled:opacity-40 transition-colors text-xs touch-target flex items-center justify-center"
+        title="Uuenda kohe"
       >
         <svg
-          width="12"
-          height="12"
+          width="14"
+          height="14"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"

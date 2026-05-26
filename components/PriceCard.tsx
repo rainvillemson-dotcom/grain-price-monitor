@@ -24,8 +24,8 @@ export default function PriceCard({ label, latest, unit = 'EUR/t' }: PriceCardPr
     >
       {/* Label */}
       <div
-        className="text-[10px] uppercase tracking-widest mb-3 leading-none"
-        style={{ color: '#484f58' }}
+        className="text-sm font-medium mb-3 leading-snug"
+        style={{ color: '#8b949e' }}
       >
         {label}
       </div>
@@ -49,12 +49,15 @@ export default function PriceCard({ label, latest, unit = 'EUR/t' }: PriceCardPr
 
           {/* Change */}
           {!isZero && (
-            <div className="text-sm font-medium leading-none" style={{ color: changeColor }}>
+            <div className="text-sm font-medium leading-snug mt-1" style={{ color: changeColor }}>
               {arrow} {Math.abs(latest.change).toFixed(2)}{' '}
-              <span className="text-xs" style={{ opacity: 0.8 }}>
+              <span className="text-xs font-normal" style={{ opacity: 0.85 }}>
                 ({isPositive ? '+' : ''}{latest.changePct.toFixed(2)}%)
               </span>
             </div>
+          )}
+          {isZero && (
+            <div className="text-xs mt-1" style={{ color: '#484f58' }}>muutus puudub</div>
           )}
         </>
       ) : (

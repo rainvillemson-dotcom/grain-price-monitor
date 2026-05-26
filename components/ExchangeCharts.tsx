@@ -21,13 +21,13 @@ interface ExchangeChartsProps {
 }
 
 const PERIODS = [
-  { value: '1d',  label: '1P' },
-  { value: '5d',  label: '1N' },
-  { value: '1mo', label: '1K' },
-  { value: '3mo', label: '3K' },
-  { value: '6mo', label: '6K' },
-  { value: '1y',  label: '1A' },
-  { value: '2y',  label: '2A' },
+  { value: '1d',  label: 'Täna' },
+  { value: '5d',  label: 'Nädal' },
+  { value: '1mo', label: '1 kuu' },
+  { value: '3mo', label: '3 kuud' },
+  { value: '6mo', label: '6 kuud' },
+  { value: '1y',  label: '1 aasta' },
+  { value: '2y',  label: '2 aastat' },
 ]
 
 function makeXAxisFormatter(period: string) {

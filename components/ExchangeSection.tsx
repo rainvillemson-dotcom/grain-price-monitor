@@ -109,7 +109,7 @@ export default function ExchangeSection() {
     <div className="space-y-4">
       {/* Päis */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h2 className="text-sm font-semibold text-[#8b949e] uppercase tracking-wider">
+        <h2 className="text-base font-semibold text-[#e6edf3]">
           Börsihinnad
         </h2>
         <MarketStatus

@@ -88,12 +88,15 @@ export default function SmsInput({ onSaved }: SmsInputProps) {
       )}
 
       <div className="bg-[#161b22] rounded-xl p-4 space-y-3">
+        <p className="text-sm" style={{ color: '#8b949e' }}>
+          Kopeeri hinnapakkumise SMS tekst siia ja vajuta nuppu — hinnad salvestatakse automaatselt.
+        </p>
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder={'Kopeeri siia SMS tekst...\n\nNäide: Scandagra 22.05.2026\nNisu: 210 €/t\nOder: 185 €/t\nRaps: 505 €/t'}
-          className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg text-[#e6edf3] text-sm p-3 resize-none focus:outline-none focus:border-[#58a6ff] placeholder-[#484f58] font-mono"
-          style={{ minHeight: '160px' }}
+          placeholder={'Näide:\nScandagra 22.05.2026\nNisu: 210 €/t\nOder: 185 €/t\nRaps: 505 €/t'}
+          className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg text-[#e6edf3] text-base p-3 resize-none focus:outline-none focus:border-[#58a6ff] placeholder-[#484f58]"
+          style={{ minHeight: '180px' }}
         />
 
         {parseError && (
@@ -105,10 +108,10 @@ export default function SmsInput({ onSaved }: SmsInputProps) {
         <button
           onClick={handleParse}
           disabled={!text.trim() || isParsing}
-          className="w-full bg-[#1f6feb] hover:bg-[#388bfd] disabled:opacity-40 text-white font-medium rounded-lg transition-colors text-base cursor-pointer"
-          style={{ height: 48 }}
+          className="w-full bg-[#1f6feb] hover:bg-[#388bfd] disabled:opacity-40 text-white font-semibold rounded-lg transition-colors text-base cursor-pointer"
+          style={{ height: 52 }}
         >
-          {isParsing ? 'Parsin...' : 'Parsi SMS'}
+          {isParsing ? 'Tuvastan hinnad...' : 'Tuvasta hinnad'}
         </button>
       </div>
 

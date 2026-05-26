@@ -75,14 +75,16 @@ export default function ParsePreview({ result, onConfirm, onCancel, isSaving }: 
         <button
           onClick={onConfirm}
           disabled={isSaving}
-          className="flex-1 bg-[#238636] hover:bg-[#2ea043] disabled:opacity-50 text-white font-medium py-2 rounded transition-colors text-sm"
+          className="flex-1 bg-[#238636] hover:bg-[#2ea043] disabled:opacity-50 text-white font-semibold rounded-lg transition-colors text-base cursor-pointer"
+          style={{ height: 52 }}
         >
           {isSaving ? 'Salvestamine...' : `Salvesta ${result.items.length} hinda`}
         </button>
         <button
           onClick={onCancel}
           disabled={isSaving}
-          className="px-4 bg-[#21262d] hover:bg-[#30363d] text-[#e6edf3] font-medium py-2 rounded transition-colors text-sm border border-[#30363d]"
+          className="px-5 bg-[#21262d] hover:bg-[#30363d] text-[#e6edf3] font-medium rounded-lg transition-colors text-base border border-[#30363d] cursor-pointer"
+          style={{ height: 52 }}
         >
           Tühista
         </button>

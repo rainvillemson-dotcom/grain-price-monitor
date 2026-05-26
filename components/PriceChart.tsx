@@ -30,11 +30,11 @@ const MARKET_TICKER_PRODUCTS: Record<string, string> = {
 }
 
 const PERIODS = [
-  { value: '1mo', label: '1K' },
-  { value: '3mo', label: '3K' },
-  { value: '6mo', label: '6K' },
-  { value: '1y', label: '1A' },
-  { value: '2y', label: '2A' },
+  { value: '1mo', label: '1 kuu' },
+  { value: '3mo', label: '3 kuud' },
+  { value: '6mo', label: '6 kuud' },
+  { value: '1y',  label: '1 aasta' },
+  { value: '2y',  label: '2 aastat' },
 ]
 
 // Allikate värvid — iga allikas saab oma värvitooni

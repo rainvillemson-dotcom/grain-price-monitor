@@ -36,20 +36,20 @@ export default function ExchangeCard({ instrument }: ExchangeCardProps) {
     >
       {/* Top row: label + exchange badge */}
       <div className="flex items-start justify-between gap-2 mb-1">
-        <span className="text-xs font-medium leading-tight" style={{ color: '#e6edf3' }}>
+        <span className="text-sm font-medium leading-snug" style={{ color: '#e6edf3' }}>
           {label}
         </span>
         <span
-          className="text-[10px] font-medium px-1.5 py-0.5 rounded-full shrink-0"
+          className="text-[10px] font-medium px-1.5 py-0.5 rounded-full shrink-0 mt-0.5"
           style={{ color: badge.color, backgroundColor: badge.bg }}
         >
           {exchange}
         </span>
       </div>
 
-      {/* Ticker below badge */}
-      <div className="text-[10px] font-mono mb-3" style={{ color: '#484f58' }}>
-        {ticker} · {unit}
+      {/* Unit */}
+      <div className="text-xs mb-3" style={{ color: '#6e7681' }}>
+        {unit}
       </div>
 
       {!hasPrice ? (
@@ -78,17 +78,17 @@ export default function ExchangeCard({ instrument }: ExchangeCardProps) {
             </div>
           )}
 
-          {/* H/L */}
+          {/* Päeva kõrgeim / madalaim */}
           {(high !== null || low !== null) && (
             <div className="flex gap-3 mt-3">
               {high !== null && (
-                <span className="text-[10px]" style={{ color: '#484f58' }}>
-                  H <span style={{ color: '#8b949e' }}>{high.toFixed(decimals)}</span>
+                <span className="text-xs" style={{ color: '#6e7681' }}>
+                  Kõrg <span style={{ color: '#8b949e' }}>{high.toFixed(decimals)}</span>
                 </span>
               )}
               {low !== null && (
-                <span className="text-[10px]" style={{ color: '#484f58' }}>
-                  L <span style={{ color: '#8b949e' }}>{low.toFixed(decimals)}</span>
+                <span className="text-xs" style={{ color: '#6e7681' }}>
+                  Madal <span style={{ color: '#8b949e' }}>{low.toFixed(decimals)}</span>
                 </span>
               )}
             </div>

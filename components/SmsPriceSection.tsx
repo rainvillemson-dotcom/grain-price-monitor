@@ -48,13 +48,14 @@ export default function SmsPriceSection() {
 
         {/* Filter + Table */}
         <div className="space-y-3">
+          <p className="text-sm font-medium" style={{ color: '#8b949e' }}>Salvestatud hinnad</p>
           {/* Product filter pills */}
           <div className="flex gap-2 flex-wrap">
             {products.map((p) => (
               <button
                 key={p}
                 onClick={() => setFilterProduct(p)}
-                className="touch-target px-3 py-1 text-xs rounded-lg transition-colors cursor-pointer flex items-center"
+                className="touch-target px-3 py-1 text-sm rounded-lg transition-colors cursor-pointer flex items-center"
                 style={
                   filterProduct === p
                     ? { backgroundColor: '#0d1117', border: '1px solid #3fb950', color: '#3fb950' }
