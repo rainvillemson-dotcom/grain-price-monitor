@@ -16,17 +16,6 @@ const tabs = [
     ),
   },
   {
-    key: 'bors',
-    label: 'Börshinnad',
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="10" width="4" height="11" rx="1" />
-        <rect x="10" y="4" width="4" height="17" rx="1" />
-        <rect x="18" y="7" width="4" height="14" rx="1" />
-      </svg>
-    ),
-  },
-  {
     key: 'lisa',
     label: 'Lisa hind',
     icon: (
