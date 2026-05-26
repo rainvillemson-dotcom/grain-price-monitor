@@ -89,12 +89,12 @@ export default function SmsInput({ onSaved }: SmsInputProps) {
 
       <div className="bg-[#161b22] rounded-xl p-4 space-y-3">
         <p className="text-sm" style={{ color: '#8b949e' }}>
-          Kopeeri hinnapakkumise SMS tekst siia ja vajuta nuppu — hinnad salvestatakse automaatselt.
+          Kirjuta või kopeeri hinnad siia — süsteem tuvastab automaatselt. Formaat ei pea olema täpne.
         </p>
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder={'Näide:\nScandagra 22.05.2026\nNisu: 210 €/t\nOder: 185 €/t\nRaps: 505 €/t'}
+          placeholder={'Sobib igasugune formaat, näiteks:\n\nNisu 210, Oder 185, Raps 505\n\nvõi\n\n210 nisu\n185 oder\n505 raps\n\nvõi kopeeri otse SMS-ist'}
           className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg text-[#e6edf3] text-base p-3 resize-none focus:outline-none focus:border-[#58a6ff] placeholder-[#484f58]"
           style={{ minHeight: '180px' }}
         />

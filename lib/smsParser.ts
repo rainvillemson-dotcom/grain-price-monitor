@@ -254,19 +254,21 @@ function extractPairsFromLine(
 
   for (let i = 0; i < products.length; i++) {
     const prod = products[i]
-    // Toote territoorium: lõppeb järgmise toote alguses (või rea lõpus)
-    const nextProdStart = i + 1 < products.length
-      ? products[i + 1].start
-      : Infinity
+    const nextProdStart = i + 1 < products.length ? products[i + 1].start : Infinity
+    const prevProdEnd  = i > 0 ? products[i - 1].end : 0
 
-    // Hinnad, mis asuvad SELLES territooriumis
-    const territory = prices.filter(
-      p => p.pos >= prod.end && p.pos < nextProdStart
-    )
+    // 1. Hind PÄRAST toodet (eelistatud: "nisu 210")
+    const after = prices.filter(p => p.pos >= prod.end && p.pos < nextProdStart)
+    if (after.length > 0) {
+      pairs.push({ norm: prod.norm, price: after[0].value, year: yearInLine })
+      continue
+    }
 
-    if (territory.length > 0) {
-      // Võta esimene hind territooriumis (loomulik järjekord: toode → hind)
-      pairs.push({ norm: prod.norm, price: territory[0].value, year: yearInLine })
+    // 2. Hind ENNE toodet (varuvariant: "210 nisu")
+    const before = prices.filter(p => p.pos >= prevProdEnd && p.pos < prod.start)
+    if (before.length > 0) {
+      // Võta viimane (lähedaim tootele)
+      pairs.push({ norm: prod.norm, price: before[before.length - 1].value, year: yearInLine })
     }
   }
 
