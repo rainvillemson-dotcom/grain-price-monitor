@@ -29,12 +29,27 @@ const MARKET_TICKER_PRODUCTS: Record<string, string> = {
 }
 
 const PERIODS = [
+  { value: '1d',  label: 'Täna' },
+  { value: '7d',  label: '7 päeva' },
   { value: '1mo', label: '1 kuu' },
   { value: '3mo', label: '3 kuud' },
   { value: '6mo', label: '6 kuud' },
   { value: '1y',  label: '1 aasta' },
   { value: '2y',  label: '2 aastat' },
 ]
+
+// Tagastab ISO kuupäeva (YYYY-MM-DD) mis on `days` päeva tagasi
+function cutoffDate(days: number): string {
+  const d = new Date()
+  d.setDate(d.getDate() - days + 1) // kaasaarvamine tänane
+  return d.toISOString().split('T')[0]
+}
+
+function periodCutoff(period: string): string | null {
+  if (period === '1d')  return cutoffDate(1)
+  if (period === '7d')  return cutoffDate(7)
+  return null
+}
 
 // Allikate värvid — iga allikas saab oma värvitooni
 const SOURCE_COLORS: Record<string, string> = {
@@ -247,10 +262,18 @@ export default function PriceChart({ matifData, smsData, period, onPeriodChange 
     }
   }, [prefsReady, selectedProducts])
 
-  const visibleGrainSeries = grainSeries.filter((series) =>
-    selectedProducts.has(MARKET_TICKER_PRODUCTS[series.ticker] ?? series.label)
-  )
-  const visibleSmsData = smsData.filter((row) => selectedProducts.has(getSmsBaseProduct(row.product)))
+  // Kuupäevafilter lühiperioodide jaoks (1d, 7d)
+  const cutoff = periodCutoff(period)
+
+  const visibleGrainSeries = grainSeries
+    .filter((series) => selectedProducts.has(MARKET_TICKER_PRODUCTS[series.ticker] ?? series.label))
+    .map((series) => cutoff
+      ? { ...series, data: series.data.filter((pt) => pt.date >= cutoff) }
+      : series
+    )
+  const visibleSmsData = smsData
+    .filter((row) => selectedProducts.has(getSmsBaseProduct(row.product)))
+    .filter((row) => !cutoff || row.date >= cutoff)
 
   const { rows: chartData, smsSeries } = buildChartData(visibleGrainSeries, visibleSmsData)
 

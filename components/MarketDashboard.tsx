@@ -14,10 +14,12 @@ export default function MarketDashboard() {
   const [error, setError] = useState<string | null>(null)
 
   const fetchMarket = useCallback(async (p: string) => {
+    // 1d ja 7d on kliendipoolne filter — API-lt küsitakse '1mo' andmed
+    const apiPeriod = p === '1d' || p === '7d' ? '1mo' : p
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`/api/market?period=${p}`)
+      const res = await fetch(`/api/market?period=${apiPeriod}`)
       if (!res.ok) throw new Error('Turuandmete laadimine ebaõnnestus')
       const json = (await res.json()) as MarketResponse
       setData(json)
