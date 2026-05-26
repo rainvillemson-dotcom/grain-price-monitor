@@ -1,6 +1,7 @@
 'use client'
 
 import type { SmsPriceRecord } from '@/lib/types'
+import { formatIsoDate } from '@/lib/date'
 
 const SOURCE_BADGE: Record<string, { bg: string; text: string }> = {
   Scandagra: { bg: '#1a3a1a', text: '#3fb950' },
@@ -41,7 +42,7 @@ export default function SmsTable({ records, onDelete }: SmsTableProps) {
           <tbody>
             {records.map((r) => {
               const badge = SOURCE_BADGE[r.source] ?? SOURCE_BADGE['Muu']
-              const formattedDate = new Date(r.date).toLocaleDateString('et-EE', {
+              const formattedDate = formatIsoDate(r.date, 'et-EE', {
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric',

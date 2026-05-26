@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { fetchMarketData, type Period } from '@/lib/yahoo'
 import { prisma } from '@/lib/db'
+import { isoDateInAppZone } from '@/lib/date'
 import type { MarketDataPoint, MarketResponse, MarketSeries, MarketLatest } from '@/lib/types'
 
 const VALID_PERIODS: Period[] = ['1mo', '3mo', '6mo', '1y', '2y']
@@ -33,7 +34,7 @@ async function tryLoadFromCache(
   const daysBack = rangeMap[period]
   const since = new Date()
   since.setDate(since.getDate() - daysBack)
-  const sinceStr = since.toISOString().split('T')[0]
+  const sinceStr = isoDateInAppZone(since)
 
   const dbRows = await prisma.marketPrice.findMany({
     where: { date: { gte: sinceStr } },
@@ -64,6 +65,13 @@ async function tryLoadFromCache(
   }
 
   const eurusdData = byTicker.get('EURUSD=X') ?? []
+
+  const hasCompleteHistory =
+    series.length >= 2 &&
+    series.every((item) => item.data.length >= 5) &&
+    eurusdData.length >= 5
+
+  if (!hasCompleteHistory) return null
 
   return {
     series,

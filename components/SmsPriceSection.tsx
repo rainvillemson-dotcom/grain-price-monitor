@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import type { SmsPriceRecord } from '@/lib/types'
+import { SMS_PRODUCTS } from '@/lib/smsProducts'
 import SmsInput from './SmsInput'
 import SmsTable from './SmsTable'
 
@@ -36,7 +37,7 @@ export default function SmsPriceSection() {
     }
   }
 
-  const products = ['', 'Nisu', 'Raps', 'Oder', 'Kaer', 'Rukis', 'Hernes', 'Uba']
+  const products = ['', ...SMS_PRODUCTS]
 
   return (
     <div className="space-y-5">

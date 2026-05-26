@@ -11,6 +11,7 @@ import {
   Legend,
 } from 'recharts'
 import type { ExchangeData } from '@/lib/exchange'
+import { formatIsoDate, formatIsoDateTimeUtc } from '@/lib/date'
 
 interface ExchangeChartsProps {
   instruments: ExchangeData[]
@@ -33,18 +34,17 @@ function makeXAxisFormatter(period: string) {
   return (date: string): string => {
     if (period === '1d') return String(date).slice(11, 16)
     if (period === '5d') {
-      const d = new Date(String(date) + 'Z')
-      const day = d.toLocaleDateString('et-EE', { weekday: 'short' })
+      const day = formatIsoDateTimeUtc(String(date), 'et-EE', { weekday: 'short' })
       return `${day} ${String(date).slice(11, 16)}`
     }
-    return new Date(String(date)).toLocaleDateString('et-EE', { day: '2-digit', month: '2-digit' })
+    return formatIsoDate(String(date), 'et-EE', { day: '2-digit', month: '2-digit' })
   }
 }
 
 function makeTooltipDateFormatter(period: string) {
   return (date: string): string => {
     if (period === '1d' || period === '5d') return String(date).replace('T', ' ') + ' UTC'
-    return new Date(String(date)).toLocaleDateString('et-EE', {
+    return formatIsoDate(String(date), 'et-EE', {
       day: '2-digit', month: '2-digit', year: 'numeric',
     })
   }
@@ -63,16 +63,18 @@ function ChartTooltip({
   label,
   unit,
   formatDate,
+  decimals = 2,
 }: {
   active?: boolean
   payload?: TooltipEntry[]
   label?: string
   unit?: string
   formatDate?: (d: string) => string
+  decimals?: number
 }) {
   if (!active || !payload?.length) return null
   const displayDate = label
-    ? (formatDate ? formatDate(label) : new Date(label).toLocaleDateString('et-EE', { day: '2-digit', month: '2-digit', year: 'numeric' }))
+    ? (formatDate ? formatDate(label) : formatIsoDate(label, 'et-EE', { day: '2-digit', month: '2-digit', year: 'numeric' }))
     : ''
   return (
     <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-3 text-sm shadow-lg min-w-[160px]">
@@ -85,7 +87,7 @@ function ChartTooltip({
           />
           <span className="text-[#8b949e] text-xs truncate max-w-[100px]">{entry.name}:</span>
           <span className="text-[#e6edf3] font-medium ml-auto tabular-nums">
-            {Number(entry.value).toFixed(2)}
+            {Number(entry.value).toFixed(decimals)}
             {unit ? ` ${unit}` : ''}
           </span>
         </div>
@@ -134,6 +136,7 @@ function GroupChart({ title, unitLabel, instruments, height = 200, period }: Gro
   const hasHistory = instruments.some((i) => i.history.length > 0)
   const xFormatter = makeXAxisFormatter(period)
   const tooltipDateFormatter = makeTooltipDateFormatter(period)
+  const decimals = unitLabel === 'USD/EUR' ? 4 : 2
 
   return (
     <div>
@@ -172,7 +175,7 @@ function GroupChart({ title, unitLabel, instruments, height = 200, period }: Gro
                 axisLine={false}
                 tickLine={false}
                 width={48}
-                tickFormatter={(v: number) => String(v)}
+                tickFormatter={(v: number) => v.toFixed(decimals)}
               />
               <Tooltip
                 content={({ active, payload, label }) => (
@@ -182,6 +185,7 @@ function GroupChart({ title, unitLabel, instruments, height = 200, period }: Gro
                     label={String(label ?? '')}
                     unit={unitLabel}
                     formatDate={tooltipDateFormatter}
+                    decimals={decimals}
                   />
                 )}
               />
@@ -286,7 +290,7 @@ export default function ExchangeCharts({
       {fxInst.length > 0 && (
         <GroupChart
           title="EUR/USD"
-          unitLabel="EUR"
+          unitLabel="USD/EUR"
           instruments={fxInst}
           height={140}
           period={period}

@@ -1,3 +1,5 @@
+import { isoDateInAppZone } from './date'
+
 export const EXCHANGE_INSTRUMENTS = [
   { ticker: 'EBM.PA', label: 'MATIF Nisu', exchange: 'MATIF', unit: 'EUR/t', color: '#3fb950', group: 'matif' },
   { ticker: 'ECO.PA', label: 'MATIF Raps', exchange: 'MATIF', unit: 'EUR/t', color: '#d29922', group: 'matif' },
@@ -5,7 +7,7 @@ export const EXCHANGE_INSTRUMENTS = [
   { ticker: 'ZS=F',   label: 'CBOT Sojauba', exchange: 'CBOT', unit: 'USDc/bu', color: '#bc8cff', group: 'cbot' },
   { ticker: 'ZC=F',   label: 'CBOT Mais',  exchange: 'CBOT',  unit: 'USDc/bu', color: '#f0883e', group: 'cbot' },
   { ticker: 'CL=F',   label: 'WTI Toorõli', exchange: 'WTI', unit: 'USD/bbl', color: '#e85151', group: 'oil' },
-  { ticker: 'EURUSD=X', label: 'EUR/USD', exchange: 'FX', unit: 'EUR', color: '#39d353', group: 'fx' },
+  { ticker: 'EURUSD=X', label: 'EUR/USD', exchange: 'FX', unit: 'USD/EUR', color: '#39d353', group: 'fx' },
 ] as const
 
 export type ExchangeTicker = (typeof EXCHANGE_INSTRUMENTS)[number]['ticker']
@@ -81,7 +83,7 @@ interface YahooResponse {
 }
 
 function todayISO(): string {
-  return new Date().toISOString().split('T')[0]
+  return isoDateInAppZone()
 }
 
 function formatTime(d: Date): string {

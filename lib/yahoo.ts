@@ -1,4 +1,5 @@
 import type { MarketDataPoint, MarketLatest, MarketSeries, MarketResponse } from './types'
+import { isoDateInAppZone } from './date'
 
 export type Period = '1mo' | '3mo' | '6mo' | '1y' | '2y'
 
@@ -50,7 +51,7 @@ function tsToDate(ts: number): string {
 }
 
 function today(): string {
-  return new Date().toISOString().split('T')[0]
+  return isoDateInAppZone()
 }
 
 async function yahooFetch(ticker: string, period: Period): Promise<YahooChartResult> {

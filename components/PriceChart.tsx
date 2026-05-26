@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -12,12 +13,20 @@ import {
   CartesianGrid,
 } from 'recharts'
 import type { MarketSeries, SmsPriceRecord } from '@/lib/types'
+import { formatIsoDate } from '@/lib/date'
+import { getSmsBaseProduct, SMS_PRODUCTS } from '@/lib/smsProducts'
 
 interface PriceChartProps {
   matifData: MarketSeries[]
   smsData: SmsPriceRecord[]
   period: string
   onPeriodChange: (p: string) => void
+}
+
+const PRODUCT_STORAGE_KEY = 'marketChartProducts'
+const MARKET_TICKER_PRODUCTS: Record<string, string> = {
+  'EBM.PA': 'Nisu',
+  'ECO.PA': 'Raps',
 }
 
 const PERIODS = [
@@ -66,11 +75,11 @@ function parseSmsChartKey(key: string): { source: string; product: string } {
 }
 
 function formatXAxis(date: string): string {
-  return new Date(date).toLocaleDateString('et-EE', { day: '2-digit', month: '2-digit' })
+  return formatIsoDate(date, 'et-EE', { day: '2-digit', month: '2-digit' })
 }
 
 function formatTooltipDate(date: string): string {
-  return new Date(date).toLocaleDateString('et-EE', {
+  return formatIsoDate(date, 'et-EE', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -194,15 +203,74 @@ function CustomTooltip({
 export default function PriceChart({ matifData, smsData, period, onPeriodChange }: PriceChartProps) {
   const eurusdSeries = matifData.find((s) => s.ticker === 'EURUSD=X')
   const grainSeries = matifData.filter((s) => s.ticker !== 'EURUSD=X')
+  const availableProducts = SMS_PRODUCTS.filter((product) => {
+    const hasMarketSeries = grainSeries.some((series) => MARKET_TICKER_PRODUCTS[series.ticker] === product)
+    const hasSmsSeries = smsData.some((row) => getSmsBaseProduct(row.product) === product)
+    return hasMarketSeries || hasSmsSeries
+  })
+  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set())
+  const [prefsReady, setPrefsReady] = useState(false)
 
-  const { rows: chartData, smsSeries } = buildChartData(grainSeries, smsData)
+  useEffect(() => {
+    const fallback = new Set(availableProducts)
+
+    try {
+      const raw = localStorage.getItem(PRODUCT_STORAGE_KEY)
+      if (!raw) {
+        setSelectedProducts(fallback)
+        setPrefsReady(true)
+        return
+      }
+
+      const parsed: unknown = JSON.parse(raw)
+      if (Array.isArray(parsed)) {
+        const filtered = parsed.filter(
+          (value): value is string => typeof value === 'string' && availableProducts.includes(value as typeof SMS_PRODUCTS[number])
+        )
+        setSelectedProducts(filtered.length > 0 ? new Set(filtered) : fallback)
+        setPrefsReady(true)
+        return
+      }
+    } catch {
+      // Ignore invalid localStorage value and use defaults.
+    }
+
+    setSelectedProducts(fallback)
+    setPrefsReady(true)
+  }, [availableProducts.join('|')])
+
+  useEffect(() => {
+    if (!prefsReady) return
+    try {
+      localStorage.setItem(PRODUCT_STORAGE_KEY, JSON.stringify(Array.from(selectedProducts)))
+    } catch {
+      // Ignore localStorage write errors.
+    }
+  }, [prefsReady, selectedProducts])
+
+  const visibleGrainSeries = grainSeries.filter((series) =>
+    selectedProducts.has(MARKET_TICKER_PRODUCTS[series.ticker] ?? series.label)
+  )
+  const visibleSmsData = smsData.filter((row) => selectedProducts.has(getSmsBaseProduct(row.product)))
+
+  const { rows: chartData, smsSeries } = buildChartData(visibleGrainSeries, visibleSmsData)
 
   const allPrices = [
-    ...grainSeries.flatMap((s) => s.data.map((d) => d.price)),
-    ...smsData.map((r) => r.price),
+    ...visibleGrainSeries.flatMap((s) => s.data.map((d) => d.price)),
+    ...visibleSmsData.map((r) => r.price),
   ].filter(Boolean)
   const yMin = allPrices.length ? Math.floor(Math.min(...allPrices) * 0.95) : 'auto'
   const yMax = allPrices.length ? Math.ceil(Math.max(...allPrices) * 1.05) : 'auto'
+  const hasVisibleSeries = visibleGrainSeries.length > 0 || smsSeries.length > 0
+
+  const toggleProduct = (product: string) => {
+    setSelectedProducts((prev) => {
+      const next = new Set(prev)
+      if (next.has(product)) next.delete(product)
+      else next.add(product)
+      return next
+    })
+  }
 
   return (
     <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 space-y-4">
@@ -223,87 +291,132 @@ export default function PriceChart({ matifData, smsData, period, onPeriodChange 
         ))}
       </div>
 
+      {availableProducts.length > 0 && (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <p className="text-[#8b949e] text-xs uppercase tracking-wider">Graafikul kuvatavad tooted</p>
+            <div className="flex items-center gap-3 text-[11px]">
+              <button
+                onClick={() => setSelectedProducts(new Set(availableProducts))}
+                className="text-[#8b949e] hover:text-[#e6edf3] transition-colors"
+              >
+                Kõik
+              </button>
+              <button
+                onClick={() => setSelectedProducts(new Set())}
+                className="text-[#8b949e] hover:text-[#e6edf3] transition-colors"
+              >
+                Peida kõik
+              </button>
+            </div>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {availableProducts.map((product) => {
+              const active = selectedProducts.has(product)
+              return (
+                <button
+                  key={product}
+                  onClick={() => toggleProduct(product)}
+                  className="touch-target px-3 py-1 text-xs rounded-lg transition-colors cursor-pointer"
+                  style={
+                    active
+                      ? { backgroundColor: '#0d1117', border: '1px solid #3fb950', color: '#3fb950' }
+                      : { backgroundColor: 'transparent', border: '1px solid #30363d', color: '#8b949e' }
+                  }
+                >
+                  {product}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Peamine graafik */}
       <div className="h-72">
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={chartData} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#21262d" />
-            <XAxis
-              dataKey="date"
-              tickFormatter={formatXAxis}
-              tick={{ fill: '#8b949e', fontSize: 11 }}
-              axisLine={{ stroke: '#30363d' }}
-              tickLine={false}
-              interval="preserveStartEnd"
-            />
-            <YAxis
-              domain={[yMin, yMax]}
-              tick={{ fill: '#8b949e', fontSize: 11 }}
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={(v: number) => `${v}`}
-              width={48}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend
-              formatter={(value: string) => {
-                if (value.startsWith(SMS_PREFIX)) {
-                  const { source, product } = parseSmsChartKey(value)
-                  return (
-                    <span style={{ color: SOURCE_COLORS[source] ?? '#8b949e', fontSize: 12 }}>
-                      {source} {product}
-                    </span>
-                  )
-                }
-                return <span style={{ color: '#8b949e', fontSize: 12 }}>{value}</span>
-              }}
-            />
-
-            {/* MATIF jooned — pidev */}
-            {grainSeries.map((s) => (
-              <Line
-                key={s.ticker}
-                type="monotone"
-                dataKey={s.ticker}
-                name={s.label}
-                stroke={s.color}
-                dot={false}
-                strokeWidth={2}
-                connectNulls
+        {!hasVisibleSeries ? (
+          <div className="h-full flex items-center justify-center text-[#484f58] text-sm border border-dashed border-[#30363d] rounded-lg">
+            Vali vähemalt üks toode, mida graafikul kuvada
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={chartData} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#21262d" />
+              <XAxis
+                dataKey="date"
+                tickFormatter={formatXAxis}
+                tick={{ fill: '#8b949e', fontSize: 11 }}
+                axisLine={{ stroke: '#30363d' }}
+                tickLine={false}
+                interval="preserveStartEnd"
               />
-            ))}
-
-            {/* SMS jooned — katkendlik, täpp igal punktil */}
-            {smsSeries.map(({ key, color }) => (
-              <Line
-                key={key}
-                type="monotone"
-                dataKey={key}
-                name={key}
-                stroke={color}
-                strokeWidth={2}
-                strokeDasharray="6 3"
-                isAnimationActive={false}
-                dot={(props: { cx: number; cy: number; index: number }) => {
-                  if (!props.cy || isNaN(props.cy)) return <g key={props.index} />
-                  return (
-                    <circle
-                      key={props.index}
-                      cx={props.cx}
-                      cy={props.cy}
-                      r={5}
-                      fill={color}
-                      stroke="#0d1117"
-                      strokeWidth={1.5}
-                    />
-                  )
+              <YAxis
+                domain={[yMin, yMax]}
+                tick={{ fill: '#8b949e', fontSize: 11 }}
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={(v: number) => `${v}`}
+                width={48}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend
+                formatter={(value: string) => {
+                  if (value.startsWith(SMS_PREFIX)) {
+                    const { source, product } = parseSmsChartKey(value)
+                    return (
+                      <span style={{ color: SOURCE_COLORS[source] ?? '#8b949e', fontSize: 12 }}>
+                        {source} {product}
+                      </span>
+                    )
+                  }
+                  return <span style={{ color: '#8b949e', fontSize: 12 }}>{value}</span>
                 }}
-                activeDot={{ r: 6, fill: color }}
-                connectNulls
               />
-            ))}
-          </ComposedChart>
-        </ResponsiveContainer>
+
+              {visibleGrainSeries.map((s) => (
+                <Line
+                  key={s.ticker}
+                  type="monotone"
+                  dataKey={s.ticker}
+                  name={s.label}
+                  stroke={s.color}
+                  dot={false}
+                  strokeWidth={2}
+                  connectNulls
+                />
+              ))}
+
+              {smsSeries.map(({ key, color }) => (
+                <Line
+                  key={key}
+                  type="monotone"
+                  dataKey={key}
+                  name={key}
+                  stroke={color}
+                  strokeWidth={2}
+                  strokeDasharray="6 3"
+                  isAnimationActive={false}
+                  dot={(props: { cx: number; cy: number; index: number }) => {
+                    if (!props.cy || isNaN(props.cy)) return <g key={props.index} />
+                    return (
+                      <circle
+                        key={props.index}
+                        cx={props.cx}
+                        cy={props.cy}
+                        r={5}
+                        fill={color}
+                        stroke="#0d1117"
+                        strokeWidth={1.5}
+                      />
+                    )
+                  }}
+                  activeDot={{ r: 6, fill: color }}
+                  connectNulls
+                />
+              ))}
+            </ComposedChart>
+          </ResponsiveContainer>
+        )}
       </div>
 
       {/* EUR/USD minigraafik */}

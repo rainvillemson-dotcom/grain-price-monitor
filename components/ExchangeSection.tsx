@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import type { ExchangeResponse } from '@/lib/exchange'
 import { loadExchangePrefs, saveExchangePrefs } from './ExchangeFilter'
@@ -46,6 +46,7 @@ export default function ExchangeSection() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const hasInitializedRef = useRef(false)
 
   useEffect(() => {
     setSelected(loadExchangePrefs())
@@ -83,6 +84,10 @@ export default function ExchangeSection() {
 
   // Periood muutub → lae uued andmed
   useEffect(() => {
+    if (!hasInitializedRef.current) {
+      hasInitializedRef.current = true
+      return
+    }
     void fetchData(period)
   }, [fetchData, period])
 

@@ -18,6 +18,7 @@ export function useAutoRefresh(onRefresh: () => Promise<void>): UseAutoRefreshRe
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const countRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const secondsRef = useRef(0)
+  const lastUpdatedRef = useRef<Date | null>(null)
 
   const clearTimers = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current)
@@ -28,7 +29,9 @@ export function useAutoRefresh(onRefresh: () => Promise<void>): UseAutoRefreshRe
     setIsRefreshing(true)
     try {
       await onRefresh()
-      setLastUpdated(new Date())
+      const now = new Date()
+      lastUpdatedRef.current = now
+      setLastUpdated(now)
     } finally {
       setIsRefreshing(false)
     }
@@ -61,8 +64,8 @@ export function useAutoRefresh(onRefresh: () => Promise<void>): UseAutoRefreshRe
     // Vaheleht muutub nähtavaks → uuenda kohe
     const onVisibility = () => {
       if (document.visibilityState === 'visible') {
-        const elapsed = lastUpdated
-          ? (Date.now() - lastUpdated.getTime()) / 1000
+        const elapsed = lastUpdatedRef.current
+          ? (Date.now() - lastUpdatedRef.current.getTime()) / 1000
           : Infinity
         // Uuenda ainult kui eelmisest uuendusest on möödunud >14 min
         if (elapsed > 14 * 60) {

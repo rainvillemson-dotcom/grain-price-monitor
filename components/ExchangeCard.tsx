@@ -13,21 +13,17 @@ const EXCHANGE_BADGE: Record<string, { color: string; bg: string }> = {
   FX:    { color: '#3fb950', bg: 'rgba(63,185,80,0.12)' },
 }
 
-function Pulse({ className }: { className?: string }) {
-  return <div className={`animate-pulse bg-[#21262d] rounded ${className ?? ''}`} />
-}
-
 export default function ExchangeCard({ instrument }: ExchangeCardProps) {
   const { ticker, label, exchange, unit, color, latest } = instrument
   const { price, change, changePct, high, low } = latest
 
-  const isSkeleton = price === 0
+  const hasPrice = Number.isFinite(price) && price > 0
   const isPositive = change >= 0
   const isZero = change === 0
   const changeColor = isZero ? '#8b949e' : isPositive ? '#3fb950' : '#f85149'
   const arrow = isPositive ? '▲' : '▼'
 
-  const decimals = unit === 'EUR' ? 4 : 2
+  const decimals = unit === 'USD/EUR' ? 4 : 2
   const badge = EXCHANGE_BADGE[exchange] ?? { color: '#8b949e', bg: 'rgba(139,148,158,0.12)' }
 
   return (
@@ -56,11 +52,14 @@ export default function ExchangeCard({ instrument }: ExchangeCardProps) {
         {ticker} · {unit}
       </div>
 
-      {isSkeleton ? (
+      {!hasPrice ? (
         <div className="space-y-2">
-          <Pulse className="h-8 w-28" />
-          <Pulse className="h-4 w-24" />
-          <Pulse className="h-3 w-16" />
+          <div className="text-4xl font-bold leading-none" style={{ color: '#484f58' }}>
+            -
+          </div>
+          <div className="text-xs" style={{ color: '#8b949e' }}>
+            Andmed puuduvad
+          </div>
         </div>
       ) : (
         <>
@@ -84,12 +83,12 @@ export default function ExchangeCard({ instrument }: ExchangeCardProps) {
             <div className="flex gap-3 mt-3">
               {high !== null && (
                 <span className="text-[10px]" style={{ color: '#484f58' }}>
-                  H <span style={{ color: '#8b949e' }}>{high.toFixed(2)}</span>
+                  H <span style={{ color: '#8b949e' }}>{high.toFixed(decimals)}</span>
                 </span>
               )}
               {low !== null && (
                 <span className="text-[10px]" style={{ color: '#484f58' }}>
-                  L <span style={{ color: '#8b949e' }}>{low.toFixed(2)}</span>
+                  L <span style={{ color: '#8b949e' }}>{low.toFixed(decimals)}</span>
                 </span>
               )}
             </div>

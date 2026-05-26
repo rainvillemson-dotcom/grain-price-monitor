@@ -1,6 +1,7 @@
 'use client'
 
 import type { ParseResult } from '@/lib/types'
+import { formatIsoDate } from '@/lib/date'
 
 interface ParsePreviewProps {
   result: ParseResult
@@ -22,7 +23,7 @@ export default function ParsePreview({ result, onConfirm, onCancel, isSaving }: 
         </span>
         <span className="text-[#8b949e]">Kuupäev</span>
         <span className="text-[#e6edf3]">
-          {new Date(result.date).toLocaleDateString('et-EE', {
+          {formatIsoDate(result.date, 'et-EE', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric',

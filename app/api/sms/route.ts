@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/db'
+import { normalizeSmsProduct } from '@/lib/smsProducts'
 
 const ParsedItemSchema = z.object({
   product: z.string().min(1),
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
         prisma.smsPrice.create({
           data: {
             source,
-            product: item.product,
+            product: normalizeSmsProduct(item.product),
             price: item.price,
             unit: item.unit,
             location: item.location ?? null,
@@ -75,13 +76,19 @@ export async function GET(request: NextRequest) {
     const { product, limit } = parsed.data
 
     const records = await prisma.smsPrice.findMany({
-      where: product ? { product } : undefined,
+      where: product
+        ? { product: { startsWith: product, mode: 'insensitive' } }
+        : undefined,
       orderBy: { createdAt: 'desc' },
       take: limit,
     })
 
     return NextResponse.json(
-      records.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() }))
+      records.map((r) => ({
+        ...r,
+        product: normalizeSmsProduct(r.product),
+        createdAt: r.createdAt.toISOString(),
+      }))
     )
   } catch {
     return NextResponse.json({ error: 'Andmebaasi viga' }, { status: 500 })

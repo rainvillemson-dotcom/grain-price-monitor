@@ -1,4 +1,6 @@
 import { ParseResult, ParsedItem, ParseError } from './types'
+import { isoDateInAppZone } from './date'
+import { normalizeSmsProduct } from './smsProducts'
 
 // ── Tootekaart (pikemad võtmed enne lühemaid) ────────────────────────────────
 
@@ -86,7 +88,7 @@ const NOISE_PATTERNS: RegExp[] = [
 // ── Abifunktsioonid ──────────────────────────────────────────────────────────
 
 function todayISO(): string {
-  return new Date().toISOString().split('T')[0]
+  return isoDateInAppZone()
 }
 
 function detectSource(text: string): string {
@@ -323,8 +325,7 @@ export function parseSms(text: string): ParseResult {
   const warnings: string[] = []
 
   const items: ParsedItem[] = unique.map(p => {
-    // Näita saagiaasta alati kui see on tekstis eksplitsiitselt märgitud
-    const product = p.year ? `${p.norm} (${p.year})` : p.norm
+    const product = normalizeSmsProduct(p.year ? `${p.norm} (${p.year})` : p.norm)
 
     if (p.price < 50 || p.price > 2000) {
       warnings.push(`Ebatavaline hind: ${product} ${p.price} €/t`)
