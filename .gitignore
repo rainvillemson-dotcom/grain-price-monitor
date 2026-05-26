@@ -5,3 +5,9 @@ node_modules/
 prisma/generated/
 .vercel
 .env*
+
+# Playwright & screenshots
+.playwright-mcp/
+*.png
+*.jpeg
+tsconfig.tsbuildinfo
